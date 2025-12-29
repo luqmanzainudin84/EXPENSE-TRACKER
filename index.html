@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anak Luqman Expense Tracker</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #27ae60;
+            padding-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccd1d1;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #219150;
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background-color: #95a5a6;
+        }
+        #status {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success { color: #27ae60; }
+        .error { color: #e74c3c; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>💰 Expense Tracker</h2>
+    <form id="expenseForm">
+        <label>📅 Tarikh Transaksi</label>
+        <input type="date" id="tarikh" required>
+
+        <label>📝 Nama Barang / Perkara</label>
+        <input type="text" id="perkara" placeholder="Contoh: Beli Buku" required>
+
+        <label>📂 Kategori</label>
+        <select id="kategori" required>
+            <option value="">Sedang memuatkan...</option>
+        </select>
+
+        <label>💵 Jumlah (RM)</label>
+        <input type="number" step="0.01" id="jumlah" placeholder="0.00" required>
+
+        <button type="submit" id="submitBtn">Simpan ke Google Sheets</button>
+    </form>
+    <div id="status"></div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxySlGFp9EYZKHsq_1FnoE17ubTRbhrBTmaFgyWgRCsQtdrApyX8ppAMJ91whqQJ8MF/exec";
+
+    // 1. Ambil Kategori dari Tab ExpenseTracker01 secara automatik
+    window.onload = function() {
+        fetch(SCRIPT_URL)
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById('kategori');
+                select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
+                data.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item;
+                    opt.text = item;
+                    select.appendChild(opt);
+                });
+            })
+            .catch(err => {
+                document.getElementById('status').innerHTML = "Gagal memuatkan kategori.";
+                console.error(err);
+            });
+    };
+
+    // 2. Hantar Data ke Tab ExpenseTracker02
+    document.getElementById('expenseForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const status = document.getElementById('status');
+        
+        btn.disabled = true;
+        status.innerHTML = "Sedang menyimpan...";
+        status.className = "";
+
+        const payload = {
+            tarikh: document.getElementById('tarikh').value,
+            perkara: document.getElementById('perkara').value,
+            kategori: document.getElementById('kategori').value,
+            jumlah: document.getElementById('jumlah').value
+        };
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.text())
+        .then(res => {
+            status.innerHTML = "✅ Berjaya disimpan!";
+            status.className = "success";
+            document.getElementById('expenseForm').reset();
+            btn.disabled = false;
+        })
+        .catch(err => {
+            status.innerHTML = "❌ Ralat: Cuba lagi.";
+            status.className = "error";
+            btn.disabled = false;
+            console.error(err);
+        });
+    });
+</script>
+
+</body>
+</html>
