@@ -23,28 +23,29 @@
     <div class="max-w-md mx-auto p-6">
         
         <div id="page-summary" class="tab-content active">
-            <header class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <header class="mb-6 text-center">
+                <h1 class="text-2xl font-bold text-gray-900">My Dashboard</h1>
+                <p class="text-xs text-gray-500 font-medium">Ringkasan Tab 02</p>
             </header>
 
             <div class="grid grid-cols-2 gap-4 mb-6">
                 <div class="bg-white border p-4 rounded-3xl shadow-sm">
                     <p class="text-[10px] font-bold text-gray-400 uppercase">Total Income</p>
-                    <h2 id="sum-income" class="text-lg font-bold text-blue-600 font-mono text-center mt-1">RM 0.00</h2>
+                    <h2 id="sum-income" class="text-lg font-bold text-blue-600 font-mono mt-1">RM 0.00</h2>
                 </div>
                 <div class="bg-white border p-4 rounded-3xl shadow-sm">
                     <p class="text-[10px] font-bold text-gray-400 uppercase">Total Expense</p>
-                    <h2 id="sum-expense" class="text-lg font-bold text-red-500 font-mono text-center mt-1">RM 0.00</h2>
+                    <h2 id="sum-expense" class="text-lg font-bold text-red-500 font-mono mt-1">RM 0.00</h2>
                 </div>
             </div>
 
-            <div class="space-y-6">
+            <div class="space-y-4">
                 <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
-                    <p class="text-xs font-bold text-gray-500 text-center mb-4 uppercase">Pecahan Income</p>
+                    <p class="text-[10px] font-bold text-gray-400 text-center mb-4 uppercase">Pecahan Income</p>
                     <canvas id="incomeChart"></canvas>
                 </div>
                 <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
-                    <p class="text-xs font-bold text-gray-500 text-center mb-4 uppercase">Pecahan Expense</p>
+                    <p class="text-[10px] font-bold text-gray-400 text-center mb-4 uppercase">Pecahan Expense</p>
                     <canvas id="expenseChart"></canvas>
                 </div>
             </div>
@@ -57,17 +58,17 @@
             <form id="entryForm" class="bg-white p-7 rounded-[2.5rem] shadow-sm border space-y-6">
                 <div>
                     <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2 ml-1">Nama Perkara</label>
-                    <input type="text" id="itemName" class="w-full p-4 bg-gray-50 border-0 rounded-2xl outline-none" required>
+                    <input type="text" id="itemName" class="w-full p-4 bg-gray-50 border-0 rounded-2xl outline-none" placeholder="Gaji / Makan" required>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2 ml-1">Kategori</label>
                     <select id="itemCat" class="w-full p-4 bg-gray-50 border-0 rounded-2xl outline-none font-semibold" required>
-                        <option value="" disabled selected>Memuatkan...</option>
+                        <option value="" disabled selected>Memuatkan kategori...</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2 ml-1">Jumlah (RM)</label>
-                    <input type="number" step="0.01" id="itemAmt" class="w-full p-4 bg-gray-50 border-0 rounded-2xl outline-none font-mono" required>
+                    <input type="number" step="0.01" id="itemAmt" class="w-full p-4 bg-gray-50 border-0 rounded-2xl outline-none font-mono" placeholder="0.00" required>
                 </div>
                 <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-xl active:scale-95 transition-all">
                     Simpan Transaksi
@@ -76,17 +77,17 @@
         </div>
 
         <div id="page-history" class="tab-content">
-            <header class="mb-8">
-                <h1 class="text-2xl font-bold text-gray-900 text-center">History</h1>
+            <header class="mb-8 text-center">
+                <h1 class="text-2xl font-bold text-gray-900">History</h1>
             </header>
             <div id="history-list" class="space-y-4"></div>
         </div>
     </div>
 
-    <nav class="fixed bottom-8 left-6 right-6 bg-white/90 backdrop-blur-xl border flex justify-around py-4 max-w-md mx-auto shadow-2xl rounded-[2rem]">
+    <nav class="fixed bottom-8 left-6 right-6 bg-white/90 backdrop-blur-xl border border-white/20 flex justify-around py-4 max-w-md mx-auto shadow-2xl rounded-[2rem]">
         <button onclick="showPage('summary', this)" class="nav-btn active flex flex-col items-center flex-1">
-            <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-            <span class="text-[10px] font-bold">DASHBOARD</span>
+            <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span class="text-[10px] font-bold">HOME</span>
         </button>
         <button onclick="showPage('input', this)" class="nav-btn text-gray-300 flex flex-col items-center flex-1">
             <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
@@ -155,35 +156,35 @@
                         }
 
                         historyHtml += `<div class="bg-white p-4 rounded-3xl border flex justify-between shadow-sm">
-                            <div><p class="font-bold text-sm text-gray-700">${nama}</p><p class="text-[10px] text-gray-400 font-bold uppercase">${kat}</p></div>
-                            <p class="font-bold ${amt>0?'text-blue-600':'text-red-500'}">RM ${Math.abs(amt).toFixed(2)}</p>
+                            <div><p class="font-bold text-sm text-gray-700">${nama}</p><p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">${kat}</p></div>
+                            <p class="font-bold ${amt>0?'text-blue-600':'text-red-500'} text-sm font-mono">RM ${Math.abs(amt).toFixed(2)}</p>
                         </div>`;
                     }
                 });
 
                 document.getElementById('sum-income').innerText = `RM ${sumIn.toFixed(2)}`;
                 document.getElementById('sum-expense').innerText = `RM ${sumEx.toFixed(2)}`;
-                document.getElementById('history-list').innerHTML = historyHtml;
+                document.getElementById('history-list').innerHTML = historyHtml || '<p class="text-center py-10 text-gray-300">Tiada transaksi</p>';
 
                 renderCharts(incomeData, expenseData);
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Gagal muat data:", e); }
         }
 
         function renderCharts(incObj, expObj) {
-            const config = (ctx, data, colors) => new Chart(ctx, {
-                type: 'pie',
-                data: { labels: Object.keys(data), datasets: [{ data: Object.values(data), backgroundColor: colors }] },
-                options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+            const chartConfig = (ctx, data, colors) => new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels: Object.keys(data), datasets: [{ data: Object.values(data), backgroundColor: colors, borderWidth: 3 }] },
+                options: { cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } } }
             });
 
             if(inChart) inChart.destroy();
             if(exChart) exChart.destroy();
 
-            const inColors = ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd'];
-            const exColors = ['#ef4444', '#f87171', '#fb923c', '#fbbf24'];
+            const inColors = ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe'];
+            const exColors = ['#ef4444', '#f87171', '#fb923c', '#fbbf24', '#fde68a'];
 
-            inChart = config(document.getElementById('incomeChart'), incObj, inColors);
-            exChart = config(document.getElementById('expenseChart'), expObj, exColors);
+            inChart = chartConfig(document.getElementById('incomeChart'), incObj, inColors);
+            exChart = chartConfig(document.getElementById('expenseChart'), expObj, exColors);
         }
 
         document.getElementById('entryForm').onsubmit = async (e) => {
@@ -194,15 +195,20 @@
                 category: document.getElementById('itemCat').value,
                 amount: document.getElementById('itemAmt').value
             };
+
+            // MESTI ADA DATA (Cegah baris kosong)
+            if(!payload.itemName || !payload.category || !payload.amount) return;
+
             btn.disabled = true;
             btn.innerText = 'Menyimpan...';
+
             try {
                 await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                alert('Berjaya!');
+                alert('Berjaya Disimpan!');
                 e.target.reset();
                 initApp();
                 showPage('summary', document.querySelector('.nav-btn'));
-            } catch (err) { alert('Gagal!'); }
+            } catch (err) { alert('Ralat penghantaran!'); }
             finally { btn.disabled = false; btn.innerText = 'Simpan Transaksi'; }
         };
 
