@@ -3,103 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Tracker</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .home-btn { text-decoration: none; background: white; color: #333; padding: 10px 25px; border-radius: 50px; font-weight: 600; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid #ddd; }
-        .container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; }
-        h2 { text-align: center; margin-bottom: 25px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
-        optgroup { font-style: normal; font-weight: bold; }
-        button { width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        #status { margin-top: 15px; text-align: center; font-size: 14px; }
-        .success { color: #27ae60; }
-        .error { color: #e74c3c; }
-    </style>
+    <title>Expense Tracker Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body class="bg-gray-100 font-sans">
 
-    <a href="https://luqmanzainudin84.github.io/LUQMAN/" class="home-btn">🏠 HOME</a>
+    <div class="max-w-md mx-auto p-4">
+        <header class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">My Finance App</h1>
+            <p class="text-sm text-gray-500">Kemas kini automatik dari Google Sheets</p>
+        </header>
 
-    <div class="container">
-        <h2>💰 Perbelanjaan</h2>
-        <form id="expenseForm">
-            <div class="form-group">
-                <label>📅 Tarikh Transaksi</label>
-                <input type="date" id="tarikh" required>
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-blue-600 p-4 rounded-xl text-white shadow-lg">
+                <p class="text-xs opacity-80">Total Gaji</p>
+                <h2 id="total-gaji" class="text-xl font-bold">RM 0</h2>
             </div>
-            <div class="form-group">
-                <label>📝 Nama Barang / Perkara</label>
-                <input type="text" id="perkara" placeholder="Contoh: Nasi Kandar" required>
+            <div class="bg-green-600 p-4 rounded-xl text-white shadow-lg">
+                <p class="text-xs opacity-80">Total Simpanan</p>
+                <h2 id="total-simpanan" class="text-xl font-bold">RM 0</h2>
             </div>
-            <div class="form-group">
-                <label>📂 Kategori</label>
-                <select id="kategori" required>
-                    <option value="">Memuatkan senarai...</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>💵 Jumlah (RM)</label>
-                <input type="number" step="0.01" id="jumlah" placeholder="0.00" required>
-            </div>
-            <button type="submit" id="submitBtn">Simpan Rekod</button>
-        </form>
-        <div id="status"></div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow mb-6">
+            <h3 class="text-sm font-semibold mb-4 text-gray-700">Agihan Kewangan</h3>
+            <canvas id="myChart"></canvas>
+        </div>
+
+        <h3 class="text-sm font-semibold mb-3 text-gray-700">Transaksi Terkini</h3>
+        <div id="transaction-list" class="space-y-3">
+            <p class="text-center text-gray-400">Loading data...</p>
+        </div>
     </div>
 
-<script>
-    // GANTIKAN DENGAN URL BARU SELEPAS NEW DEPLOYMENT
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxySlGFp9EYZKHsq_1FnoE17ubTRbhrBTmaFgyWgRCsQtdrApyX8ppAMJ91whqQJ8MF/exec";
+    <script>
+        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKoViIImo84Y46xFVekhPH5e-_m0gGQ1lXWPbVoQx3VETGKGDjWe7pdTYX-8zmkRIYeUcvfXDgYJVR/pub?output=csv';
 
-    window.onload = function() {
-        document.getElementById('tarikh').valueAsDate = new Date();
-        fetch(SCRIPT_URL)
-            .then(res => res.json())
-            .then(data => {
-                const select = document.getElementById('kategori');
-                select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
-                let currentGroup = "";
-                let groupElement = null;
+        async function fetchData() {
+            try {
+                const response = await fetch(csvUrl);
+                const data = await response.text();
+                const rows = data.split('\n').slice(1); // Buang header
 
-                data.forEach(item => {
-                    if (item.kumpulan !== currentGroup) {
-                        groupElement = document.createElement('optgroup');
-                        groupElement.label = item.kumpulan.toUpperCase();
-                        groupElement.style.color = (item.jenis === "Income") ? "#27ae60" : "#e74c3c"; // Warna berbeza
-                        select.appendChild(groupElement);
-                        currentGroup = item.kumpulan;
-                    }
-                    let opt = document.createElement('option');
-                    opt.value = item.kategori;
-                    opt.innerHTML = "&nbsp;&nbsp;&nbsp;&raquo; " + item.kategori; // Indentasi ke kanan
-                    opt.style.color = "#333";
-                    groupElement.appendChild(opt);
+                let totalGaji = 0;
+                let totalSimpanan = 0;
+                let htmlList = '';
+
+                rows.forEach(row => {
+                    const cols = row.split(',');
+                    if (cols.length < 5) return;
+
+                    const kategori = cols[3].trim();
+                    const jumlah = parseFloat(cols[4]);
+                    const nama = cols[2];
+                    const tarikh = cols[1];
+
+                    if (kategori === 'Gaji') totalGaji += jumlah;
+                    if (kategori === 'Simpanan') totalSimpanan += jumlah;
+
+                    // Bina UI untuk list
+                    htmlList += `
+                        <div class="bg-white p-3 rounded-lg shadow-sm flex justify-between items-center">
+                            <div>
+                                <p class="font-medium text-gray-800">${nama}</p>
+                                <p class="text-xs text-gray-400">${tarikh}</p>
+                            </div>
+                            <p class="font-bold ${kategori === 'Gaji' ? 'text-blue-600' : 'text-green-600'}">
+                                ${kategori === 'Gaji' ? '+' : ''}RM ${jumlah}
+                            </p>
+                        </div>
+                    `;
                 });
-            })
-            .catch(err => { document.getElementById('status').innerHTML = "Gagal memuatkan kategori."; });
-    };
 
-    document.getElementById('expenseForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('submitBtn');
-        btn.disabled = true;
-        const payload = {
-            tarikh: document.getElementById('tarikh').value,
-            perkara: document.getElementById('perkara').value,
-            kategori: document.getElementById('kategori').value,
-            jumlah: document.getElementById('jumlah').value
-        };
-        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-        .then(res => res.text())
-        .then(() => {
-            document.getElementById('status').innerHTML = "✅ Berjaya!";
-            document.getElementById('expenseForm').reset();
-            document.getElementById('tarikh').valueAsDate = new Date();
-            btn.disabled = false;
-        }).catch(() => { btn.disabled = false; });
-    });
-</script>
+                document.getElementById('total-gaji').innerText = `RM ${totalGaji}`;
+                document.getElementById('total-simpanan').innerText = `RM ${totalSimpanan}`;
+                document.getElementById('transaction-list').innerHTML = htmlList;
+
+                // Update Chart
+                const ctx = document.getElementById('myChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Gaji', 'Simpanan'],
+                        datasets: [{
+                            data: [totalGaji, totalSimpanan],
+                            backgroundColor: ['#2563eb', '#16a34a']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        fetchData();
+    </script>
 </body>
 </html>
