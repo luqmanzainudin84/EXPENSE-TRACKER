@@ -6,36 +6,60 @@
     <title>Expense Tracker Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-50 pb-24">
 
-    <div class="max-w-md mx-auto p-4">
-        <header class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">My Finance App</h1>
-            <p class="text-sm text-gray-500">Kemas kini automatik dari Google Sheets</p>
+    <div class="max-w-md mx-auto p-5">
+        <header class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-xl font-bold text-gray-900">My Finance</h1>
+                <p class="text-xs text-gray-500">Kemas kini: Automatik</p>
+            </div>
+            <div class="bg-blue-100 p-2 rounded-full">
+                <span class="text-blue-600 text-sm font-bold">LQ</span>
+            </div>
         </header>
 
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="bg-blue-600 p-4 rounded-xl text-white shadow-lg">
-                <p class="text-xs opacity-80">Total Gaji</p>
-                <h2 id="total-gaji" class="text-xl font-bold">RM 0</h2>
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-sm">
+                <p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-1">Total Gaji</p>
+                <h2 id="total-gaji" class="text-lg font-bold text-blue-600">RM 0</h2>
             </div>
-            <div class="bg-green-600 p-4 rounded-xl text-white shadow-lg">
-                <p class="text-xs opacity-80">Total Simpanan</p>
-                <h2 id="total-simpanan" class="text-xl font-bold">RM 0</h2>
+            <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-sm">
+                <p class="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-1">Simpanan</p>
+                <h2 id="total-simpanan" class="text-lg font-bold text-green-600">RM 0</h2>
             </div>
         </div>
 
-        <div class="bg-white p-4 rounded-xl shadow mb-6">
-            <h3 class="text-sm font-semibold mb-4 text-gray-700">Agihan Kewangan</h3>
-            <canvas id="myChart"></canvas>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6 text-center">
+            <h3 class="text-xs font-bold uppercase text-gray-400 mb-4 tracking-widest">Analisis Aliran</h3>
+            <div class="flex justify-center">
+                <canvas id="myChart" style="max-height: 200px;"></canvas>
+            </div>
         </div>
 
-        <h3 class="text-sm font-semibold mb-3 text-gray-700">Transaksi Terkini</h3>
+        <h3 class="text-sm font-bold text-gray-800 mb-4">Transaksi Terkini</h3>
         <div id="transaction-list" class="space-y-3">
-            <p class="text-center text-gray-400">Loading data...</p>
+            <div class="animate-pulse bg-gray-200 h-12 rounded-lg"></div>
         </div>
     </div>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 flex justify-around items-center max-w-md mx-auto shadow-2xl">
+        <a href="#" class="flex flex-col items-center text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span class="text-[10px] mt-1 font-bold">Home</span>
+        </a>
+        <a href="https://docs.google.com/spreadsheets/d/11FpenLRTpP95MCIKwaz3uG9FrR6r-0zW-jK-x1V6P5E/edit" target="_blank" class="flex flex-col items-center text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span class="text-[10px] mt-1">Add Data</span>
+        </a>
+    </nav>
 
     <script>
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKoViIImo84Y46xFVekhPH5e-_m0gGQ1lXWPbVoQx3VETGKGDjWe7pdTYX-8zmkRIYeUcvfXDgYJVR/pub?output=csv';
@@ -44,7 +68,8 @@
             try {
                 const response = await fetch(csvUrl);
                 const data = await response.text();
-                const rows = data.split('\n').slice(1); // Buang header
+                // Guna regex untuk handle CSV dengan betul jika ada koma dalam teks
+                const rows = data.split('\n').slice(1);
 
                 let totalGaji = 0;
                 let totalSimpanan = 0;
@@ -54,33 +79,39 @@
                     const cols = row.split(',');
                     if (cols.length < 5) return;
 
-                    const kategori = cols[3].trim();
+                    // Mengikut Sheet anda: D=Kategori, E=Jumlah
+                    const nama = cols[2].replace(/"/g, '');
+                    const kategori = cols[3].replace(/"/g, '').trim();
                     const jumlah = parseFloat(cols[4]);
-                    const nama = cols[2];
                     const tarikh = cols[1];
 
-                    if (kategori === 'Gaji') totalGaji += jumlah;
-                    if (kategori === 'Simpanan') totalSimpanan += jumlah;
+                    if (!isNaN(jumlah)) {
+                        if (kategori === 'Gaji') totalGaji += jumlah;
+                        if (kategori === 'Simpanan') totalSimpanan += jumlah;
 
-                    // Bina UI untuk list
-                    htmlList += `
-                        <div class="bg-white p-3 rounded-lg shadow-sm flex justify-between items-center">
-                            <div>
-                                <p class="font-medium text-gray-800">${nama}</p>
-                                <p class="text-xs text-gray-400">${tarikh}</p>
+                        htmlList += `
+                            <div class="bg-white p-4 rounded-xl border border-gray-100 flex justify-between items-center shadow-sm">
+                                <div class="flex items-center space-x-3">
+                                    <div class="${kategori === 'Gaji' ? 'bg-blue-50' : 'bg-green-50'} p-2 rounded-lg">
+                                        <span class="text-xs font-bold">${kategori[0]}</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-800 leading-none mb-1">${nama}</p>
+                                        <p class="text-[10px] text-gray-400 font-medium">${tarikh}</p>
+                                    </div>
+                                </div>
+                                <p class="text-sm font-bold ${kategori === 'Gaji' ? 'text-blue-600' : 'text-green-600'}">
+                                    RM ${jumlah.toLocaleString()}
+                                </p>
                             </div>
-                            <p class="font-bold ${kategori === 'Gaji' ? 'text-blue-600' : 'text-green-600'}">
-                                ${kategori === 'Gaji' ? '+' : ''}RM ${jumlah}
-                            </p>
-                        </div>
-                    `;
+                        `;
+                    }
                 });
 
-                document.getElementById('total-gaji').innerText = `RM ${totalGaji}`;
-                document.getElementById('total-simpanan').innerText = `RM ${totalSimpanan}`;
+                document.getElementById('total-gaji').innerText = `RM ${totalGaji.toLocaleString()}`;
+                document.getElementById('total-simpanan').innerText = `RM ${totalSimpanan.toLocaleString()}`;
                 document.getElementById('transaction-list').innerHTML = htmlList;
 
-                // Update Chart
                 const ctx = document.getElementById('myChart').getContext('2d');
                 new Chart(ctx, {
                     type: 'doughnut',
@@ -88,20 +119,21 @@
                         labels: ['Gaji', 'Simpanan'],
                         datasets: [{
                             data: [totalGaji, totalSimpanan],
-                            backgroundColor: ['#2563eb', '#16a34a']
+                            backgroundColor: ['#2563eb', '#16a34a'],
+                            borderWidth: 0,
+                            hoverOffset: 4
                         }]
                     },
                     options: {
-                        responsive: true,
-                        plugins: { legend: { position: 'bottom' } }
+                        cutout: '70%',
+                        plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } }
                     }
                 });
 
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('Error:', error);
             }
         }
-
         fetchData();
     </script>
 </body>
