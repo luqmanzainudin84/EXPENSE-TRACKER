@@ -3,138 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Tracker Pro</title>
+    <title>Expense Tracker App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .nav-item.active { color: #2563eb; }
+        .nav-btn.active { color: #2563eb; border-top: 2px solid #2563eb; }
     </style>
 </head>
-<body class="bg-gray-50 pb-20">
+<body class="bg-gray-50 pb-20 font-sans">
 
     <div class="max-w-md mx-auto p-5">
         
         <div id="page-summary" class="tab-content active">
-            <h1 class="text-2xl font-bold mb-6">Summary</h1>
+            <header class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Ringkasan</h1>
+                <p class="text-xs text-gray-500">Data dari ExpenseTracker02</p>
+            </header>
+
             <div class="grid grid-cols-2 gap-4 mb-6">
                 <div class="bg-blue-600 p-4 rounded-2xl text-white shadow-lg">
-                    <p class="text-xs opacity-80">Total Gaji</p>
-                    <h2 id="sum-gaji" class="text-xl font-bold">RM 0</h2>
+                    <p class="text-[10px] uppercase font-bold opacity-70">Total Gaji</p>
+                    <h2 id="sum-gaji" class="text-xl font-bold font-mono text-white">RM 0.00</h2>
                 </div>
                 <div class="bg-green-600 p-4 rounded-2xl text-white shadow-lg">
-                    <p class="text-xs opacity-80">Simpanan</p>
-                    <h2 id="sum-simpanan" class="text-xl font-bold">RM 0</h2>
+                    <p class="text-[10px] uppercase font-bold opacity-70">Simpanan</p>
+                    <h2 id="sum-simpanan" class="text-xl font-bold font-mono text-white">RM 0.00</h2>
                 </div>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border">
-                <canvas id="chartDoughnut"></canvas>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
+                <canvas id="mainChart"></canvas>
             </div>
         </div>
 
         <div id="page-input" class="tab-content">
-            <h1 class="text-2xl font-bold mb-6">Tambah Transaksi</h1>
-            <form id="entryForm" class="bg-white p-6 rounded-2xl shadow-sm border space-y-4">
+            <h1 class="text-2xl font-bold mb-6 text-gray-800">Tambah Data</h1>
+            <form id="entryForm" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 space-y-4">
                 <div>
-                    <label class="block text-sm font-semibold mb-1">Perkara</label>
-                    <input type="text" id="name" class="w-full p-3 bg-gray-50 border rounded-xl" placeholder="Contoh: Makan Tengahari" required>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Perkara</label>
+                    <input type="text" id="itemName" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none" placeholder="cth: Gaji Bulan Dec" required>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold mb-1">Kategori</label>
-                    <select id="cat" class="w-full p-3 bg-gray-50 border rounded-xl">
-                        <option value="Gaji">Gaji</option>
-                        <option value="Simpanan">Simpanan</option>
-                        <option value="Belanja">Belanja</option>
-                    </select>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Kategori (Dari Tab 01)</label>
+                    <select id="itemCat" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none">
+                        </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold mb-1">Jumlah (RM)</label>
-                    <input type="number" id="amt" class="w-full p-3 bg-gray-50 border rounded-xl" placeholder="0.00" required>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Jumlah (RM)</label>
+                    <input type="number" step="0.01" id="itemAmt" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none" placeholder="0.00" required>
                 </div>
-                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-blue-200 shadow-lg">Simpan Data</button>
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg active:scale-95 transition">Simpan Transaksi</button>
             </form>
         </div>
 
-        <div id="page-history" class="tab-content text-center">
+        <div id="page-history" class="tab-content">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold">History</h1>
-                <a href="https://docs.google.com/spreadsheets/d/11FpenLRTpP95MCIKwaz3uG9FrR6r-0zW-jK-x1V6P5E/edit" target="_blank" class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold">Edit/Delete di Sheets ↗</a>
+                <h1 class="text-2xl font-bold text-gray-800">Sejarah</h1>
+                <a href="https://docs.google.com/spreadsheets/d/11FpenLRTpP95MCIKwaz3uG9FrR6r-0zW-jK-x1V6P5E/edit" target="_blank" class="text-[10px] bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold uppercase hover:bg-red-200">Padam Data ↗</a>
             </div>
-            <div id="history-list" class="space-y-3 text-left">
-                </div>
+            <div id="history-list" class="space-y-3">
+                <p class="text-center text-gray-400 text-sm">Memuatkan data...</p>
+            </div>
         </div>
 
     </div>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 max-w-md mx-auto shadow-2xl">
-        <button onclick="showPage('summary')" class="nav-item flex flex-col items-center active">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path></svg>
-            <span class="text-[10px]">Summary</span>
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around max-w-md mx-auto shadow-inner">
+        <button onclick="showPage('summary', this)" class="nav-btn active flex-1 py-3 flex flex-col items-center">
+            <span class="text-[10px] font-bold uppercase">Dashboard</span>
         </button>
-        <button onclick="showPage('input')" class="nav-item flex flex-col items-center text-gray-400">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"></path></svg>
-            <span class="text-[10px]">Key-In</span>
+        <button onclick="showPage('input', this)" class="nav-btn flex-1 py-3 flex flex-col items-center text-gray-400">
+            <span class="text-[10px] font-bold uppercase">Key-In</span>
         </button>
-        <button onclick="showPage('history')" class="nav-item flex flex-col items-center text-gray-400">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"></path></svg>
-            <span class="text-[10px]">History</span>
+        <button onclick="showPage('history', this)" class="nav-btn flex-1 py-3 flex flex-col items-center text-gray-400">
+            <span class="text-[10px] font-bold uppercase">History</span>
         </button>
     </nav>
 
     <script>
-        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKoViIImo84Y46xFVekhPH5e-_m0gGQ1lXWPbVoQx3VETGKGDjWe7pdTYX-8zmkRIYeUcvfXDgYJVR/pub?output=csv';
-        const scriptUrl = 'MASUKKAN_URL_GOOGLE_APPS_SCRIPT_ANDA';
+        const csvDropdown = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKoViIImo84Y46xFVekhPH5e-_m0gGQ1lXWPbVoQx3VETGKGDjWe7pdTYX-8zmkRIYeUcvfXDgYJVR/pub?gid=736450696&single=true&output=csv';
+        const csvData = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKoViIImo84Y46xFVekhPH5e-_m0gGQ1lXWPbVoQx3VETGKGDjWe7pdTYX-8zmkRIYeUcvfXDgYJVR/pub?gid=2125214790&single=true&output=csv';
+        
+        // Masukkan URL Web App Google Script anda di sini untuk fungsi simpan
+        const scriptUrl = 'URL_SCRIPT_ANDA_DI_SINI'; 
 
-        function showPage(pageId) {
+        let chart;
+
+        function showPage(id, btn) {
             document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active', 'text-blue-600'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'text-blue-600'));
             
-            document.getElementById('page-' + pageId).classList.add('active');
-            event.currentTarget.classList.add('active', 'text-blue-600');
+            document.getElementById('page-' + id).classList.add('active');
+            btn.classList.add('active', 'text-blue-600');
         }
 
-        async function loadData() {
-            const resp = await fetch(csvUrl);
-            const data = await resp.text();
-            const rows = data.split('\n').slice(1);
-            
-            let g = 0, s = 0, html = '';
-            rows.forEach(row => {
-                const c = row.split(',');
-                if(c.length < 5) return;
-                const nama = c[2], kat = c[3].trim(), amt = parseFloat(c[4]), tkh = c[1];
+        async function initApp() {
+            try {
+                // 1. Ambil Dropdown dari ExpenseTracker01
+                const res1 = await fetch(csvDropdown);
+                const text1 = await res1.text();
+                const rows1 = text1.split('\n').slice(1);
+                let optHtml = '';
+                rows1.forEach(row => {
+                    const val = row.split(',')[0].replace(/"/g,'').trim();
+                    if(val) optHtml += `<option value="${val}">${val}</option>`;
+                });
+                document.getElementById('itemCat').innerHTML = optHtml;
+
+                // 2. Ambil Data dari ExpenseTracker02
+                const res2 = await fetch(csvData);
+                const text2 = await res2.text();
+                const rows2 = text2.split('\n').slice(1);
                 
-                if(kat === 'Gaji') g += amt;
-                if(kat === 'Simpanan') s += amt;
+                let gaji = 0, simpanan = 0, historyHtml = '';
 
-                html += `<div class="bg-white p-3 rounded-xl border flex justify-between">
-                    <div><p class="font-bold text-sm">${nama}</p><p class="text-[10px] text-gray-400">${tkh}</p></div>
-                    <p class="font-bold ${kat==='Gaji'?'text-blue-600':'text-green-600'}">RM ${amt}</p>
-                </div>`;
-            });
+                rows2.forEach(row => {
+                    const cols = row.split(',');
+                    if(cols.length < 5) return;
+                    
+                    const tkh = cols[1];
+                    const nama = cols[2].replace(/"/g,'');
+                    const kat = cols[3].replace(/"/g,'').trim();
+                    const amt = parseFloat(cols[4]);
 
-            document.getElementById('sum-gaji').innerText = `RM ${g}`;
-            document.getElementById('sum-simpanan').innerText = `RM ${s}`;
-            document.getElementById('history-list').innerHTML = html;
-            updateChart(g, s);
+                    if(!isNaN(amt)) {
+                        if(kat === 'Gaji') gaji += amt;
+                        if(kat === 'Simpanan') simpanan += amt;
+
+                        historyHtml += `
+                            <div class="bg-white p-4 rounded-xl border border-gray-100 flex justify-between shadow-sm">
+                                <div>
+                                    <p class="font-bold text-sm text-gray-800">${nama}</p>
+                                    <p class="text-[10px] text-gray-400 font-medium">${tkh} • ${kat}</p>
+                                </div>
+                                <p class="font-bold ${kat==='Gaji'?'text-blue-600':'text-green-600'}">RM ${amt.toFixed(2)}</p>
+                            </div>`;
+                    }
+                });
+
+                document.getElementById('sum-gaji').innerText = `RM ${gaji.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+                document.getElementById('sum-simpanan').innerText = `RM ${simpanan.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+                document.getElementById('history-list').innerHTML = historyHtml || '<p class="text-center text-gray-300 py-10">Tiada rekod</p>';
+                
+                renderChart(gaji, simpanan);
+            } catch (err) {
+                console.error("Ralat muat data:", err);
+            }
         }
 
-        function updateChart(g, s) {
-            new Chart(document.getElementById('chartDoughnut'), {
+        function renderChart(g, s) {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            if(chart) chart.destroy();
+            chart = new Chart(ctx, {
                 type: 'doughnut',
-                data: { labels: ['Gaji', 'Simpanan'], datasets: [{ data: [g, s], backgroundColor: ['#2563eb', '#16a34a'] }] }
+                data: {
+                    labels: ['Gaji', 'Simpanan'],
+                    datasets: [{
+                        data: [g, s],
+                        backgroundColor: ['#2563eb', '#16a34a'],
+                        hoverOffset: 4,
+                        borderWidth: 0
+                    }]
+                },
+                options: { cutout: '70%', plugins: { legend: { position: 'bottom' } } }
             });
         }
 
         document.getElementById('entryForm').onsubmit = async (e) => {
             e.preventDefault();
-            // Gunakan fetch() ke scriptUrl anda seperti biasa
-            alert('Data sedang dihantar ke Google Sheets...');
-            // Logik POST anda di sini
+            const btn = e.target.querySelector('button');
+            btn.disabled = true;
+            btn.innerText = 'Menyimpan...';
+
+            const formData = {
+                itemName: document.getElementById('itemName').value,
+                category: document.getElementById('itemCat').value,
+                amount: document.getElementById('itemAmt').value
+            };
+
+            // Hantar ke Google Apps Script
+            try {
+                await fetch(scriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                alert('Berjaya disimpan!');
+                e.target.reset();
+                initApp(); // Refresh data
+            } catch (err) {
+                alert('Gagal simpan. Sila periksa scriptUrl anda.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Simpan Transaksi';
+            }
         };
 
-        loadData();
+        window.onload = initApp;
     </script>
 </body>
 </html>
