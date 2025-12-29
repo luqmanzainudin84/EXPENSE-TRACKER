@@ -14,6 +14,11 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .nav-btn.active { color: #2563eb; }
         .nav-btn.active svg { fill: #2563eb; }
+        
+        /* Gaya khusus untuk dropdown supaya warna nampak jelas */
+        select option.opt-income { color: #10b981; font-weight: 600; }
+        select option.opt-expense { color: #ef4444; font-weight: 600; }
+        select option.opt-header { color: #94a3b8; font-style: italic; }
     </style>
 </head>
 <body class="pb-28">
@@ -23,21 +28,22 @@
         <div id="page-summary" class="tab-content active">
             <header class="mb-8">
                 <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
-                <p class="text-sm text-gray-500 font-medium">Status kewangan terkini</p>
+                <p class="text-sm text-gray-500 font-medium">Ringkasan dari ExpenseTracker02</p>
             </header>
 
             <div class="grid grid-cols-2 gap-4 mb-8">
-                <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-5 rounded-3xl shadow-lg shadow-blue-100">
-                    <p class="text-[10px] uppercase tracking-widest font-bold text-blue-100 mb-2 opacity-80">Total Gaji</p>
-                    <h2 id="sum-gaji" class="text-xl font-bold text-white font-mono text-white">RM 0.00</h2>
+                <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-sm">
+                    <p class="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2">Total Gaji</p>
+                    <h2 id="sum-gaji" class="text-xl font-bold text-blue-600 font-mono">RM 0.00</h2>
                 </div>
-                <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-5 rounded-3xl shadow-lg shadow-emerald-100">
-                    <p class="text-[10px] uppercase tracking-widest font-bold text-emerald-100 mb-2 opacity-80">Simpanan</p>
-                    <h2 id="sum-simpanan" class="text-xl font-bold text-white font-mono text-white">RM 0.00</h2>
+                <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-sm">
+                    <p class="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2">Simpanan</p>
+                    <h2 id="sum-simpanan" class="text-xl font-bold text-green-600 font-mono">RM 0.00</h2>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6 text-center">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Agihan Keseluruhan</p>
                 <canvas id="mainChart"></canvas>
             </div>
         </div>
@@ -45,7 +51,7 @@
         <div id="page-input" class="tab-content">
             <header class="mb-8">
                 <h1 class="text-2xl font-bold text-gray-900">Tambah Data</h1>
-                <p class="text-sm text-gray-500 font-medium">Pilih kategori dari tab rujukan</p>
+                <p class="text-sm text-gray-500 font-medium">Pilih kategori dari rujukan Tab 01</p>
             </header>
 
             <form id="entryForm" class="bg-white p-7 rounded-[2.5rem] shadow-sm border border-gray-100 space-y-6">
@@ -54,9 +60,9 @@
                     <input type="text" id="itemName" class="w-full p-4 bg-gray-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="cth: Gaji Jan" required>
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2 ml-1">Kategori (ExpenseTracker01)</label>
-                    <select id="itemCat" class="w-full p-4 bg-gray-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none">
-                        <option value="">Memuatkan senarai...</option>
+                    <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2 ml-1">Kategori</label>
+                    <select id="itemCat" class="w-full p-4 bg-gray-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none font-semibold">
+                        <option value="" disabled selected>Memuatkan senarai...</option>
                     </select>
                 </div>
                 <div>
@@ -72,11 +78,11 @@
         <div id="page-history" class="tab-content">
             <header class="flex justify-between items-end mb-8">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Sejarah</h1>
-                    <p class="text-sm text-gray-500 font-medium">Rekod dalam tab 02</p>
+                    <h1 class="text-2xl font-bold text-gray-900">History</h1>
+                    <p class="text-sm text-gray-500 font-medium">Log transaksi terkini</p>
                 </div>
-                <a href="https://docs.google.com/spreadsheets/d/11FpenLRTpP95MCIKwaz3uG9FrR6r-0zW-jK-x1V6P5E/edit" target="_blank" class="text-[10px] bg-red-50 text-red-500 px-4 py-2 rounded-full font-bold uppercase tracking-tight shadow-sm border border-red-100">
-                    Edit di Sheets ↗
+                <a href="https://docs.google.com/spreadsheets/d/11FpenLRTpP95MCIKwaz3uG9FrR6r-0zW-jK-x1V6P5E/edit" target="_blank" class="text-[10px] bg-red-50 text-red-500 px-4 py-2 rounded-full font-bold uppercase border border-red-100">
+                    Edit Sheets ↗
                 </a>
             </header>
             <div id="history-list" class="space-y-4"></div>
@@ -110,30 +116,30 @@
             document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'text-blue-600'));
             document.getElementById('page-' + id).classList.add('active');
-            btn.classList.add('active');
+            if(btn) btn.classList.add('active');
         }
 
         async function initApp() {
             try {
-                // 1. Ambil Dropdown dari ExpenseTracker01
+                // 1. Ambil Kategori dari Tab 01
                 const res1 = await fetch(csvDropdown);
                 const text1 = await res1.text();
-                const lines = text1.split('\n').filter(line => line.trim() !== '');
+                const rows1 = text1.split('\n').slice(1);
                 
-                // Ambil unik kategori dari kolum pertama CSV Tab 01
-                let categories = new Set();
-                lines.slice(1).forEach(line => {
-                    const firstCol = line.split(',')[0].replace(/"/g, '').trim();
-                    if (firstCol) categories.add(firstCol);
-                });
-
                 let optHtml = '<option value="" disabled selected>Pilih Kategori</option>';
-                categories.forEach(cat => {
-                    optHtml += `<option value="${cat}">${cat}</option>`;
+                rows1.forEach(row => {
+                    const cols = row.split(',');
+                    if (cols.length >= 3) {
+                        const jenis = cols[0].trim();    // Kolum A: Income/Expense
+                        const kategori = cols[2].trim(); // Kolum C: Kategori
+                        const cssClass = (jenis === 'Income') ? 'opt-income' : 'opt-expense';
+                        
+                        optHtml += `<option value="${kategori}" class="${cssClass}">${jenis}: ${kategori}</option>`;
+                    }
                 });
                 document.getElementById('itemCat').innerHTML = optHtml;
 
-                // 2. Ambil Data Transaksi dari ExpenseTracker02
+                // 2. Ambil Transaksi dari Tab 02
                 const res2 = await fetch(csvData);
                 const text2 = await res2.text();
                 const rows2 = text2.split('\n').slice(1);
@@ -159,17 +165,17 @@
                                     <p class="font-bold text-gray-800 text-sm mb-1">${nama}</p>
                                     <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">${tkh} • ${kat}</p>
                                 </div>
-                                <p class="font-bold ${kat==='Gaji'?'text-blue-600':'text-emerald-600'} text-sm font-mono">RM ${amt.toFixed(2)}</p>
+                                <p class="font-bold ${kat === 'Gaji' ? 'text-blue-600' : 'text-emerald-600'} text-sm font-mono">RM ${amt.toFixed(2)}</p>
                             </div>`;
                     }
                 });
 
-                document.getElementById('sum-gaji').innerText = `RM ${gaji.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-                document.getElementById('sum-simpanan').innerText = `RM ${simpanan.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-                document.getElementById('history-list').innerHTML = historyHtml || '<p class="text-center text-gray-300 py-10 text-[10px] font-bold tracking-widest uppercase">Tiada rekod</p>';
+                document.getElementById('sum-gaji').innerText = `RM ${gaji.toFixed(2)}`;
+                document.getElementById('sum-simpanan').innerText = `RM ${simpanan.toFixed(2)}`;
+                document.getElementById('history-list').innerHTML = historyHtml || '<p class="text-center text-gray-300 py-10 text-[10px] font-bold uppercase tracking-widest">Tiada rekod</p>';
                 
                 renderChart(gaji, simpanan);
-            } catch (err) { console.error("Ralat:", err); }
+            } catch (err) { console.error("Ralat muat data:", err); }
         }
 
         function renderChart(g, s) {
@@ -182,11 +188,11 @@
                     datasets: [{
                         data: [g, s],
                         backgroundColor: ['#2563eb', '#10b981'],
-                        borderWidth: 6,
+                        borderWidth: 5,
                         borderColor: '#ffffff'
                     }]
                 },
-                options: { cutout: '80%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { weight: 'bold' } } } } }
+                options: { cutout: '80%', plugins: { legend: { position: 'bottom' } } }
             });
         }
 
@@ -204,11 +210,11 @@
 
             try {
                 await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                alert('Data berjaya disimpan!');
+                alert('Berjaya Disimpan!');
                 e.target.reset();
                 initApp();
                 showPage('summary', document.querySelector('.nav-btn'));
-            } catch (err) { alert('Ralat!'); }
+            } catch (err) { alert('Ralat penghantaran!'); }
             finally { btn.disabled = false; btn.innerText = 'Simpan Transaksi'; }
         };
 
