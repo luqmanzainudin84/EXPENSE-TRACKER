@@ -7,101 +7,116 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .nav-btn.active { color: #2563eb; border-top: 2px solid #2563eb; }
+        .nav-btn.active { color: #2563eb; }
+        .nav-btn.active svg { fill: #2563eb; }
     </style>
 </head>
-<body class="bg-gray-50 pb-20 font-sans">
+<body class="bg-gray-50 pb-24">
 
-    <div class="max-w-md mx-auto p-5">
+    <div class="max-w-md mx-auto p-6">
         
-        <div id="page-summary" class="tab-content active">
-            <header class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-800">Ringkasan</h1>
-                <p class="text-xs text-gray-500">Data dari ExpenseTracker02</p>
+        <div id="page-summary" class="tab-content active animate-fade-in">
+            <header class="mb-8">
+                <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+                <p class="text-sm text-gray-500 font-medium">Ringkasan Kewangan Anda</p>
             </header>
 
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="bg-blue-600 p-4 rounded-2xl text-white shadow-lg">
-                    <p class="text-[10px] uppercase font-bold opacity-70">Total Gaji</p>
-                    <h2 id="sum-gaji" class="text-xl font-bold font-mono text-white">RM 0.00</h2>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-sm">
+                    <p class="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-2">Total Gaji</p>
+                    <h2 id="sum-gaji" class="text-xl font-bold text-blue-600 font-mono">RM 0.00</h2>
                 </div>
-                <div class="bg-green-600 p-4 rounded-2xl text-white shadow-lg">
-                    <p class="text-[10px] uppercase font-bold opacity-70">Simpanan</p>
-                    <h2 id="sum-simpanan" class="text-xl font-bold font-mono text-white">RM 0.00</h2>
+                <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-sm">
+                    <p class="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-2">Simpanan</p>
+                    <h2 id="sum-simpanan" class="text-xl font-bold text-green-600 font-mono">RM 0.00</h2>
                 </div>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-6">
+                <h3 class="text-sm font-bold text-gray-700 mb-4 uppercase tracking-widest text-center">Analisis Aliran</h3>
                 <canvas id="mainChart"></canvas>
             </div>
         </div>
 
         <div id="page-input" class="tab-content">
-            <h1 class="text-2xl font-bold mb-6 text-gray-800">Tambah Data</h1>
-            <form id="entryForm" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 space-y-4">
+            <header class="mb-8">
+                <h1 class="text-2xl font-bold text-gray-900">Tambah Data</h1>
+                <p class="text-sm text-gray-500 font-medium">Masukkan transaksi baru</p>
+            </header>
+
+            <form id="entryForm" class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 space-y-5">
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Perkara</label>
-                    <input type="text" id="itemName" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none" placeholder="cth: Gaji Bulan Dec" required>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Nama Perkara</label>
+                    <input type="text" id="itemName" class="w-full p-4 bg-gray-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="cth: Gaji Disember" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Kategori (Dari Tab 01)</label>
-                    <select id="itemCat" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Kategori (Tab 01)</label>
+                    <select id="itemCat" class="w-full p-4 bg-gray-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none appearance-none">
                         </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Jumlah (RM)</label>
-                    <input type="number" step="0.01" id="itemAmt" class="w-full p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-blue-400 outline-none" placeholder="0.00" required>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Jumlah (RM)</label>
+                    <input type="number" step="0.01" id="itemAmt" class="w-full p-4 bg-gray-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="0.00" required>
                 </div>
-                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg active:scale-95 transition">Simpan Transaksi</button>
+                <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-200 active:scale-95 transition-all">
+                    Simpan Transaksi
+                </button>
             </form>
         </div>
 
         <div id="page-history" class="tab-content">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-800">Sejarah</h1>
-                <a href="https://docs.google.com/spreadsheets/d/11FpenLRTpP95MCIKwaz3uG9FrR6r-0zW-jK-x1V6P5E/edit" target="_blank" class="text-[10px] bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold uppercase hover:bg-red-200">Padam Data ↗</a>
-            </div>
-            <div id="history-list" class="space-y-3">
-                <p class="text-center text-gray-400 text-sm">Memuatkan data...</p>
-            </div>
+            <header class="flex justify-between items-end mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">History</h1>
+                    <p class="text-sm text-gray-500 font-medium">Semua rekod Tab 02</p>
+                </div>
+                <a href="https://docs.google.com/spreadsheets/d/11FpenLRTpP95MCIKwaz3uG9FrR6r-0zW-jK-x1V6P5E/edit" target="_blank" class="text-[10px] bg-red-50 text-red-600 px-4 py-2 rounded-full font-bold uppercase tracking-tight">
+                    Padam Data ↗
+                </a>
+            </header>
+            <div id="history-list" class="space-y-4">
+                </div>
         </div>
 
     </div>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around max-w-md mx-auto shadow-inner">
-        <button onclick="showPage('summary', this)" class="nav-btn active flex-1 py-3 flex flex-col items-center">
-            <span class="text-[10px] font-bold uppercase">Dashboard</span>
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-100 flex justify-around py-4 max-w-md mx-auto shadow-xl rounded-t-3xl">
+        <button onclick="showPage('summary', this)" class="nav-btn active flex flex-col items-center flex-1">
+            <svg class="w-6 h-6 mb-1" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+            <span class="text-[10px] font-bold">DASHBOARD</span>
         </button>
-        <button onclick="showPage('input', this)" class="nav-btn flex-1 py-3 flex flex-col items-center text-gray-400">
-            <span class="text-[10px] font-bold uppercase">Key-In</span>
+        <button onclick="showPage('input', this)" class="nav-btn text-gray-300 flex flex-col items-center flex-1">
+            <svg class="w-6 h-6 mb-1" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            <span class="text-[10px] font-bold">KEY-IN</span>
         </button>
-        <button onclick="showPage('history', this)" class="nav-btn flex-1 py-3 flex flex-col items-center text-gray-400">
-            <span class="text-[10px] font-bold uppercase">History</span>
+        <button onclick="showPage('history', this)" class="nav-btn text-gray-300 flex flex-col items-center flex-1">
+            <svg class="w-6 h-6 mb-1" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+            <span class="text-[10px] font-bold">HISTORY</span>
         </button>
     </nav>
 
     <script>
+        // PAUTAN DATA ANDA
         const csvDropdown = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKoViIImo84Y46xFVekhPH5e-_m0gGQ1lXWPbVoQx3VETGKGDjWe7pdTYX-8zmkRIYeUcvfXDgYJVR/pub?gid=736450696&single=true&output=csv';
         const csvData = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKoViIImo84Y46xFVekhPH5e-_m0gGQ1lXWPbVoQx3VETGKGDjWe7pdTYX-8zmkRIYeUcvfXDgYJVR/pub?gid=2125214790&single=true&output=csv';
-        
-        // Masukkan URL Web App Google Script anda di sini untuk fungsi simpan
-        const scriptUrl = 'URL_SCRIPT_ANDA_DI_SINI'; 
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbxySlGFp9EYZKHsq_1FnoE17ubTRbhrBTmaFgyWgRCsQtdrApyX8ppAMJ91whqQJ8MF/exec'; 
 
-        let chart;
+        let myChart;
 
         function showPage(id, btn) {
             document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'text-blue-600'));
-            
             document.getElementById('page-' + id).classList.add('active');
-            btn.classList.add('active', 'text-blue-600');
+            btn.classList.add('active');
         }
 
         async function initApp() {
             try {
-                // 1. Ambil Dropdown dari ExpenseTracker01
+                // 1. Load Dropdown (Tab 01)
                 const res1 = await fetch(csvDropdown);
                 const text1 = await res1.text();
                 const rows1 = text1.split('\n').slice(1);
@@ -112,7 +127,7 @@
                 });
                 document.getElementById('itemCat').innerHTML = optHtml;
 
-                // 2. Ambil Data dari ExpenseTracker02
+                // 2. Load Data & Dashboard (Tab 02)
                 const res2 = await fetch(csvData);
                 const text2 = await res2.text();
                 const rows2 = text2.split('\n').slice(1);
@@ -122,7 +137,6 @@
                 rows2.forEach(row => {
                     const cols = row.split(',');
                     if(cols.length < 5) return;
-                    
                     const tkh = cols[1];
                     const nama = cols[2].replace(/"/g,'');
                     const kat = cols[3].replace(/"/g,'').trim();
@@ -133,73 +147,71 @@
                         if(kat === 'Simpanan') simpanan += amt;
 
                         historyHtml += `
-                            <div class="bg-white p-4 rounded-xl border border-gray-100 flex justify-between shadow-sm">
+                            <div class="bg-white p-5 rounded-3xl border border-gray-100 flex justify-between items-center shadow-sm">
                                 <div>
-                                    <p class="font-bold text-sm text-gray-800">${nama}</p>
-                                    <p class="text-[10px] text-gray-400 font-medium">${tkh} • ${kat}</p>
+                                    <p class="font-bold text-gray-800 text-sm mb-1">${nama}</p>
+                                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">${tkh} • ${kat}</p>
                                 </div>
-                                <p class="font-bold ${kat==='Gaji'?'text-blue-600':'text-green-600'}">RM ${amt.toFixed(2)}</p>
+                                <div class="text-right">
+                                    <p class="font-bold ${kat==='Gaji'?'text-blue-600':'text-green-600'} text-sm">RM ${amt.toFixed(2)}</p>
+                                </div>
                             </div>`;
                     }
                 });
 
                 document.getElementById('sum-gaji').innerText = `RM ${gaji.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
                 document.getElementById('sum-simpanan').innerText = `RM ${simpanan.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-                document.getElementById('history-list').innerHTML = historyHtml || '<p class="text-center text-gray-300 py-10">Tiada rekod</p>';
+                document.getElementById('history-list').innerHTML = historyHtml || '<p class="text-center text-gray-300 py-10 text-xs font-bold uppercase tracking-widest">Tiada rekod</p>';
                 
                 renderChart(gaji, simpanan);
-            } catch (err) {
-                console.error("Ralat muat data:", err);
-            }
+            } catch (err) { console.error("Error loading:", err); }
         }
 
         function renderChart(g, s) {
             const ctx = document.getElementById('mainChart').getContext('2d');
-            if(chart) chart.destroy();
-            chart = new Chart(ctx, {
+            if(myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Gaji', 'Simpanan'],
                     datasets: [{
                         data: [g, s],
-                        backgroundColor: ['#2563eb', '#16a34a'],
-                        hoverOffset: 4,
-                        borderWidth: 0
+                        backgroundColor: ['#2563eb', '#22c55e'],
+                        borderWidth: 0,
+                        hoverOffset: 10
                     }]
                 },
-                options: { cutout: '70%', plugins: { legend: { position: 'bottom' } } }
+                options: {
+                    cutout: '75%',
+                    plugins: { legend: { position: 'bottom', labels: { font: { weight: 'bold', size: 10 } } } }
+                }
             });
         }
 
         document.getElementById('entryForm').onsubmit = async (e) => {
             e.preventDefault();
-            const btn = e.target.querySelector('button');
+            const btn = document.getElementById('submitBtn');
             btn.disabled = true;
             btn.innerText = 'Menyimpan...';
 
-            const formData = {
+            const payload = {
                 itemName: document.getElementById('itemName').value,
                 category: document.getElementById('itemCat').value,
                 amount: document.getElementById('itemAmt').value
             };
 
-            // Hantar ke Google Apps Script
             try {
                 await fetch(scriptUrl, {
                     method: 'POST',
                     mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(payload)
                 });
-                alert('Berjaya disimpan!');
+                alert('Berjaya Disimpan!');
                 e.target.reset();
-                initApp(); // Refresh data
-            } catch (err) {
-                alert('Gagal simpan. Sila periksa scriptUrl anda.');
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'Simpan Transaksi';
-            }
+                initApp();
+                showPage('summary', document.querySelector('.nav-btn'));
+            } catch (err) { alert('Ralat penghantaran data'); }
+            finally { btn.disabled = false; btn.innerText = 'Simpan Transaksi'; }
         };
 
         window.onload = initApp;
