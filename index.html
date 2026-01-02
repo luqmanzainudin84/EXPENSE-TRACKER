@@ -3,223 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finance Tracker Dual Chart</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Expense Tracker</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .nav-btn.active { color: #2563eb; }
-        .nav-btn.active svg { fill: #2563eb; }
-        select option.opt-income { color: #10b981; font-weight: 600; }
-        select option.opt-expense { color: #ef4444; font-weight: 600; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .home-btn { text-decoration: none; background: white; color: #333; padding: 10px 25px; border-radius: 50px; font-weight: 600; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid #ddd; }
+        .container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; box-sizing: border-box; }
+        h2 { text-align: center; margin-bottom: 25px; color: #1a1a1a; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; color: #4b4b4b; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; background: #f9f9f9; }
+        optgroup { font-style: normal; font-weight: bold; }
+        button { width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #219150; }
+        #status { margin-top: 15px; text-align: center; font-size: 14px; min-height: 20px; }
+        .success { color: #27ae60; }
+        .error { color: #e74c3c; }
     </style>
 </head>
-<body class="pb-28">
+<body>
 
-    <div class="max-w-md mx-auto p-6">
-        
-        <div id="page-summary" class="tab-content active">
-            <header class="mb-6 text-center">
-                <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
-                <p class="text-xs text-gray-500 font-medium">Ringkasan Kewangan Anda</p>
-            </header>
+    <a href="https://luqmanzainudin84.github.io/LUQMAN/" class="home-btn">🏠 HOME</a>
 
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="bg-white border p-4 rounded-3xl shadow-sm">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase">Total Income</p>
-                    <h2 id="sum-income" class="text-lg font-bold text-blue-600 font-mono mt-1">RM 0.00</h2>
-                </div>
-                <div class="bg-white border p-4 rounded-3xl shadow-sm">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase">Total Expense</p>
-                    <h2 id="sum-expense" class="text-lg font-bold text-red-500 font-mono mt-1">RM 0.00</h2>
-                </div>
+    <div class="container">
+        <h2>💰 Perbelanjaan</h2>
+        <form id="expenseForm">
+            <div class="form-group">
+                <label>📅 Tarikh Transaksi</label>
+                <input type="date" id="tarikh" required>
             </div>
-
-            <div class="space-y-4">
-                <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
-                    <p class="text-[10px] font-bold text-gray-400 text-center mb-4 uppercase">Pecahan Income</p>
-                    <canvas id="incomeChart"></canvas>
-                </div>
-                <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
-                    <p class="text-[10px] font-bold text-gray-400 text-center mb-4 uppercase">Pecahan Expense</p>
-                    <canvas id="expenseChart"></canvas>
-                </div>
+            <div class="form-group">
+                <label>📝 Nama Barang / Perkara</label>
+                <input type="text" id="perkara" placeholder="Contoh: Makan Tengahari" required>
             </div>
-        </div>
-
-        <div id="page-input" class="tab-content">
-            <header class="mb-8">
-                <h1 class="text-2xl font-bold text-gray-900">Tambah Data</h1>
-            </header>
-            <form id="entryForm" class="bg-white p-7 rounded-[2.5rem] shadow-sm border space-y-6">
-                <div>
-                    <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2 ml-1">Nama Perkara</label>
-                    <input type="text" id="itemName" class="w-full p-4 bg-gray-50 border-0 rounded-2xl outline-none" placeholder="Gaji / Makan" required>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2 ml-1">Kategori</label>
-                    <select id="itemCat" class="w-full p-4 bg-gray-50 border-0 rounded-2xl outline-none font-semibold" required>
-                        <option value="" disabled selected>Memuatkan kategori...</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2 ml-1">Jumlah (RM)</label>
-                    <input type="number" step="0.01" id="itemAmt" class="w-full p-4 bg-gray-50 border-0 rounded-2xl outline-none font-mono" placeholder="0.00" required>
-                </div>
-                <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-xl active:scale-95 transition-all">
-                    Simpan Transaksi
-                </button>
-            </form>
-        </div>
-
-        <div id="page-history" class="tab-content">
-            <header class="mb-8 text-center">
-                <h1 class="text-2xl font-bold text-gray-900">History</h1>
-            </header>
-            <div id="history-list" class="space-y-4"></div>
-        </div>
+            <div class="form-group">
+                <label>📂 Kategori</label>
+                <select id="kategori" required>
+                    <option value="">Sedang memuatkan...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>💵 Jumlah (RM)</label>
+                <input type="number" step="0.01" id="jumlah" placeholder="0.00" required>
+            </div>
+            <button type="submit" id="submitBtn">Simpan Rekod</button>
+        </form>
+        <div id="status"></div>
     </div>
 
-    <nav class="fixed bottom-8 left-6 right-6 bg-white/90 backdrop-blur-xl border border-white/20 flex justify-around py-4 max-w-md mx-auto shadow-2xl rounded-[2rem]">
-        <a href="https://luqmanzainudin84.github.io/LUQMAN/" class="flex flex-col items-center flex-1 text-gray-300 hover:text-blue-600 transition-colors">
-            <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            <span class="text-[10px] font-bold">HOME</span>
-        </a>
+<script>
+    // PASTI KAN URL INI ADALAH URL DARI "NEW DEPLOYMENT"
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxm1rCjS13jIfH6pj5Mznv5a1HWIZb32J6FZNm0tD7LNXvr_ZqtygqHqxiAltq12JiV7g/exec";
+
+    window.onload = function() {
+        document.getElementById('tarikh').valueAsDate = new Date();
         
-        <button onclick="showPage('summary', this)" class="nav-btn active flex flex-col items-center flex-1">
-            <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-            <span class="text-[10px] font-bold">DASHBOARD</span>
-        </button>
-
-        <button onclick="showPage('input', this)" class="nav-btn text-gray-300 flex flex-col items-center flex-1">
-            <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            <span class="text-[10px] font-bold">KEY-IN</span>
-        </button>
-
-        <button onclick="showPage('history', this)" class="nav-btn text-gray-300 flex flex-col items-center flex-1">
-            <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-            <span class="text-[10px] font-bold">HISTORY</span>
-        </button>
-    </nav>
-
-    <script>
-        const csvDropdown = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKoViIImo84Y46xFVekhPH5e-_m0gGQ1lXWPbVoQx3VETGKGDjWe7pdTYX-8zmkRIYeUcvfXDgYJVR/pub?gid=736450696&single=true&output=csv';
-        const csvData = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKoViIImo84Y46xFVekhPH5e-_m0gGQ1lXWPbVoQx3VETGKGDjWe7pdTYX-8zmkRIYeUcvfXDgYJVR/pub?gid=2125214790&single=true&output=csv';
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbxySlGFp9EYZKHsq_1FnoE17ubTRbhrBTmaFgyWgRCsQtdrApyX8ppAMJ91whqQJ8MF/exec'; 
-
-        let inChart, exChart;
-
-        function showPage(id, btn) {
-            document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'text-blue-600'));
-            const targetPage = document.getElementById('page-' + id);
-            if(targetPage) targetPage.classList.add('active');
-            if(btn) btn.classList.add('active');
-        }
-
-        async function initApp() {
-            try {
-                // 1. Load Dropdown
-                const res1 = await fetch(csvDropdown);
-                const text1 = await res1.text();
-                const rows1 = text1.split('\n').slice(1);
-                let optHtml = '<option value="" disabled selected>Pilih Kategori</option>';
-                rows1.forEach(row => {
-                    const cols = row.split(',');
-                    if (cols.length >= 3) {
-                        const jenis = cols[0].trim();
-                        const kat = cols[2].trim();
-                        optHtml += `<option value="${kat}" class="${jenis==='Income'?'opt-income':'opt-expense'}">${jenis}: ${kat}</option>`;
-                    }
-                });
-                document.getElementById('itemCat').innerHTML = optHtml;
-
-                // 2. Load Dashboard Data
-                const res2 = await fetch(csvData);
-                const text2 = await res2.text();
-                const rows2 = text2.split('\n').slice(1);
+        fetch(SCRIPT_URL)
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById('kategori');
+                if (data.error) {
+                    select.innerHTML = '<option value="">Ralat: ' + data.error + '</option>';
+                    return;
+                }
                 
-                let incomeData = {}, expenseData = {};
-                let sumIn = 0, sumEx = 0, historyHtml = '';
+                select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
+                let currentGroup = "";
+                let groupElement = null;
 
-                rows2.forEach(row => {
-                    const cols = row.split(',');
-                    if(cols.length < 5) return;
-                    const nama = cols[2].replace(/"/g,'');
-                    const kat = cols[3].replace(/"/g,'').trim();
-                    const amt = parseFloat(cols[4]);
-
-                    if(!isNaN(amt)) {
-                        if(amt > 0) {
-                            sumIn += amt;
-                            incomeData[kat] = (incomeData[kat] || 0) + amt;
-                        } else {
-                            let val = Math.abs(amt);
-                            sumEx += val;
-                            expenseData[kat] = (expenseData[kat] || 0) + val;
-                        }
-
-                        historyHtml += `<div class="bg-white p-4 rounded-3xl border flex justify-between shadow-sm">
-                            <div><p class="font-bold text-sm text-gray-700">${nama}</p><p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">${kat}</p></div>
-                            <p class="font-bold ${amt>0?'text-blue-600':'text-red-500'} text-sm font-mono">RM ${Math.abs(amt).toFixed(2)}</p>
-                        </div>`;
+                data.forEach(item => {
+                    if (item.kumpulan !== currentGroup) {
+                        groupElement = document.createElement('optgroup');
+                        groupElement.label = "--- " + item.kumpulan.toUpperCase() + " ---";
+                        // Warna Hijau untuk Income, Merah untuk Expense
+                        groupElement.style.color = (item.jenis === "Income") ? "#27ae60" : "#e74c3c";
+                        select.appendChild(groupElement);
+                        currentGroup = item.kumpulan;
                     }
+                    
+                    let opt = document.createElement('option');
+                    opt.value = item.kategori;
+                    opt.innerHTML = "&nbsp;&nbsp;&nbsp;&raquo; " + item.kategori; // Indentasi
+                    opt.style.color = "#333"; // Nama kategori tetap hitam
+                    groupElement.appendChild(opt);
                 });
-
-                document.getElementById('sum-income').innerText = `RM ${sumIn.toFixed(2)}`;
-                document.getElementById('sum-expense').innerText = `RM ${sumEx.toFixed(2)}`;
-                document.getElementById('history-list').innerHTML = historyHtml || '<p class="text-center py-10 text-gray-300">Tiada rekod</p>';
-
-                renderCharts(incomeData, expenseData);
-            } catch (e) { console.error(e); }
-        }
-
-        function renderCharts(incObj, expObj) {
-            const chartConfig = (ctx, data, colors) => new Chart(ctx, {
-                type: 'doughnut',
-                data: { labels: Object.keys(data), datasets: [{ data: Object.values(data), backgroundColor: colors, borderWidth: 3 }] },
-                options: { cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } } }
+            })
+            .catch(err => {
+                document.getElementById('status').innerHTML = "<span class='error'>Gagal memuatkan kategori. Sila semak Deployment URL.</span>";
             });
+    };
 
-            if(inChart) inChart.destroy();
-            if(exChart) exChart.destroy();
+    document.getElementById('expenseForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const status = document.getElementById('status');
+        
+        btn.disabled = true;
+        status.innerHTML = "Menyimpan...";
+        status.className = "";
 
-            const inColors = ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe'];
-            const exColors = ['#ef4444', '#f87171', '#fb923c', '#fbbf24', '#fde68a'];
-
-            inChart = chartConfig(document.getElementById('incomeChart'), incObj, inColors);
-            exChart = chartConfig(document.getElementById('expenseChart'), expObj, exColors);
-        }
-
-        document.getElementById('entryForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            const payload = {
-                itemName: document.getElementById('itemName').value,
-                category: document.getElementById('itemCat').value,
-                amount: document.getElementById('itemAmt').value
-            };
-
-            if(!payload.itemName || !payload.category || !payload.amount) return;
-
-            btn.disabled = true;
-            btn.innerText = 'Menyimpan...';
-
-            try {
-                await fetch(scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                alert('Tersimpan!');
-                e.target.reset();
-                initApp();
-                showPage('summary', document.querySelectorAll('.nav-btn')[1]); // Pergi ke Dashboard
-            } catch (err) { alert('Ralat!'); }
-            finally { btn.disabled = false; btn.innerText = 'Simpan Transaksi'; }
+        const payload = {
+            tarikh: document.getElementById('tarikh').value,
+            perkara: document.getElementById('perkara').value,
+            kategori: document.getElementById('kategori').value,
+            jumlah: document.getElementById('jumlah').value
         };
 
-        window.onload = initApp;
-    </script>
+        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+        .then(res => res.text())
+        .then(res => {
+            status.innerHTML = "<span class='success'>✅ Berjaya disimpan!</span>";
+            document.getElementById('expenseForm').reset();
+            document.getElementById('tarikh').valueAsDate = new Date();
+            btn.disabled = false;
+        })
+        .catch(err => {
+            status.innerHTML = "<span class='error'>❌ Ralat Simpan. Cuba lagi.</span>";
+            btn.disabled = false;
+        });
+    });
+</script>
 </body>
 </html>
