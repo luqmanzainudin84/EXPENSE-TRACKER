@@ -3,126 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracker Kewangan & Analisis</title>
+    <title>Tracker Kewangan Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; margin-bottom: 20px; }
-        .form-group { margin-bottom: 12px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .chart-container { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; margin-bottom: 20px; }
-        .log-container { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; overflow-x: auto; }
+        :root {
+            --primary: #27ae60;
+            --bg: #f4f7f6;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 420px; margin-bottom: 20px; border-top: 5px solid var(--primary); }
+        h2, h3 { color: #2c3e50; margin-bottom: 20px; }
+        
+        /* Dropdown Styling */
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px; color: #7f8c8d; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1.5px solid #eee; font-size: 15px; transition: 0.3s; }
+        input:focus, select:focus { border-color: var(--primary); outline: none; background: #fff; }
+        
+        /* Warna untuk Optgroup */
+        optgroup[label="GAJI"] { color: #27ae60; }
+        optgroup[label="OTHER"] { color: #2980b9; }
+        optgroup[label="KEPERLUAN ASAS"] { color: #e67e22; }
+        optgroup[label="GAYA HIDUP & KEINGINAN"] { color: #9b59b6; }
+        optgroup[label="KEWANGAN & LAIN-LAIN"] { color: #e74c3c; }
+        option { color: #2c3e50; font-weight: normal; }
+
+        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3); }
+        button:hover { background: #219150; transform: translateY(-2px); }
+        button:disabled { background: #bdc3c7; box-shadow: none; cursor: not-allowed; }
+
+        .chart-box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 420px; margin-bottom: 20px; text-align: center; }
+        
+        .log-box { width: 100%; max-width: 500px; background: white; border-radius: 15px; padding: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th, td { border-bottom: 1px solid #eee; padding: 10px; text-align: left; }
-        th { background: #f8f9fa; }
-        .status-msg { text-align: center; font-size: 13px; margin-top: 10px; }
+        th { text-align: left; padding: 12px; border-bottom: 2px solid #eee; color: #95a5a6; text-transform: uppercase; font-size: 11px; }
+        td { padding: 12px; border-bottom: 1px solid #f9f9f9; color: #2c3e50; }
+        .amt-neg { color: #e74c3c; font-weight: bold; }
+        .amt-pos { color: #27ae60; font-weight: bold; }
+        #statusMsg { font-size: 12px; margin-top: 10px; transition: 0.5s; }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="card">
         <h2 style="text-align:center">💰 Tracker Kewangan</h2>
-        <form id="expenseForm">
-            <div class="form-group"><label>📅 Tarikh</label><input type="date" id="tarikh" required></div>
-            <div class="form-group"><label>📝 Perkara</label><input type="text" id="perkara" placeholder="Contoh: Nasi Lemak" required></div>
-            <div class="form-group"><label>📂 Kategori</label><select id="kategori" required><option value="">Memuatkan...</option></select></div>
-            <div class="form-group"><label>💵 Jumlah (RM)</label><input type="number" step="0.01" id="jumlah" placeholder="0.00" required></div>
-            <button type="submit" id="submitBtn">Simpan Rekod</button>
+        <form id="trackerForm">
+            <label>TARIKH</label>
+            <input type="date" id="tarikh" required>
+            
+            <label>PERKARA</label>
+            <input type="text" id="perkara" placeholder="Contoh: Beli Barang Dapur" required>
+            
+            <label>KATEGORI</label>
+            <select id="kategori" required>
+                <option value="">Memuatkan kategori...</option>
+            </select>
+            
+            <label>JUMLAH (RM)</label>
+            <input type="number" step="0.01" id="jumlah" placeholder="0.00" required>
+            
+            <button type="submit" id="submitBtn">SIMPAN REKOD</button>
         </form>
-        <div id="status" class="status-msg"></div>
+        <div id="statusMsg" style="text-align:center"></div>
     </div>
 
-    <div class="chart-container">
-        <h3 style="text-align:center">📊 Analisis Perbelanjaan (%)</h3>
-        <canvas id="myChart"></canvas>
+    <div class="chart-box">
+        <h3>📊 Analisis Belanja (%)</h3>
+        <canvas id="pieChart"></canvas>
     </div>
 
-    <div class="log-container">
-        <h3 style="text-align:center">📜 Log Transaksi Terkini</h3>
+    <div class="log-box">
+        <h3 style="text-align:center; margin-top:10px;">📜 Log Transaksi</h3>
         <table id="logTable">
-            <thead><tr><th>Tarikh</th><th>Perkara</th><th>Kategori</th><th>Jumlah</th></tr></thead>
-            <tbody><tr><td colspan="4" style="text-align:center">Memuatkan data...</td></tr></tbody>
+            <thead>
+                <tr>
+                    <th>Tarikh</th>
+                    <th>Perkara</th>
+                    <th>RM</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
         </table>
     </div>
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztGn8HAzHYmUNTVrNIMY9TNK4pQ2XUBjYedisZyTOxTMWp7UwqqMUqecnDxiYIPH1l/exec";
-    let myPieChart;
+    let chartInstance;
 
-    window.onload = function() {
+    window.onload = () => {
         document.getElementById('tarikh').valueAsDate = new Date();
-        loadInitialData();
+        muatDataAwal();
     };
 
-    function loadInitialData() {
-        fetch(SCRIPT_URL + "?action=getInitialData")
-            .then(res => res.json())
-            .then(res => {
-                // 1. Muat Kategori
-                const select = document.getElementById('kategori');
-                select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
-                const groups = {};
-                res.categories.forEach(item => {
-                    if (!groups[item.kumpulan]) groups[item.kumpulan] = [];
-                    groups[item.kumpulan].push(item.kategori);
-                });
-                for (let group in groups) {
-                    let optGroup = document.createElement('optgroup');
-                    optGroup.label = `--- ${group.toUpperCase()} ---`;
-                    groups[group].forEach(cat => {
-                        let opt = document.createElement('option');
-                        opt.value = cat; opt.text = `» ${cat}`;
-                        optGroup.appendChild(opt);
-                    });
-                    select.add(optGroup);
-                }
+    function muatDataAwal() {
+        fetch(SCRIPT_URL).then(res => res.json()).then(data => {
+            // Setup Dropdown dengan Warna
+            const select = document.getElementById('kategori');
+            select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
+            
+            const grouped = data.categories.reduce((acc, obj) => {
+                const key = obj.kumpulan;
+                if (!acc[key]) acc[key] = [];
+                acc[key].push(obj.kategori);
+                return acc;
+            }, {});
 
-                // 2. Muat Log & Chart
-                updateUI(res.logs);
-            });
+            for (let group in grouped) {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = group.toUpperCase();
+                grouped[group].forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat;
+                    opt.text = "» " + cat;
+                    optgroup.appendChild(opt);
+                });
+                select.add(optgroup);
+            }
+
+            // Update Log & Carta
+            updateUI(data.logs);
+        });
     }
 
     function updateUI(logs) {
         const tbody = document.querySelector('#logTable tbody');
         tbody.innerHTML = '';
-        const chartData = {};
+        const dataCarta = {};
 
-        logs.slice(0, 10).forEach(log => {
-            let row = `<tr><td>${new Date(log.tarikh).toLocaleDateString()}</td><td>${log.perkara}</td><td>${log.kategori}</td><td style="color:${log.jumlah < 0 ? 'red' : 'green'}">RM${Math.abs(log.jumlah).toFixed(2)}</td></tr>`;
+        logs.forEach(log => {
+            // Table
+            const dateObj = new Date(log.tarikh);
+            const formattedDate = dateObj.toLocaleDateString('ms-MY', {day:'2-digit', month:'2-digit'});
+            const row = `<tr>
+                <td>${formattedDate}</td>
+                <td>${log.perkara}<br><small style="color:#bdc3c7">${log.kategori}</small></td>
+                <td class="${log.jumlah < 0 ? 'amt-neg' : 'amt-pos'}">${log.jumlah.toFixed(2)}</td>
+            </tr>`;
             tbody.innerHTML += row;
 
+            // Chart Data (Hanya ambil perbelanjaan sahaja untuk Pie Chart)
             if (log.jumlah < 0) {
-                chartData[log.kategori] = (chartData[log.kategori] || 0) + Math.abs(log.jumlah);
+                dataCarta[log.kategori] = (dataCarta[log.kategori] || 0) + Math.abs(log.jumlah);
             }
         });
 
-        renderChart(chartData);
+        renderChart(dataCarta);
     }
 
     function renderChart(data) {
-        const ctx = document.getElementById('myChart').getContext('2d');
-        if (myPieChart) myPieChart.destroy();
+        const ctx = document.getElementById('pieChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
         
-        myPieChart = new Chart(ctx, {
+        chartInstance = new Chart(ctx, {
             type: 'pie',
             data: {
                 labels: Object.keys(data),
                 datasets: [{
                     data: Object.values(data),
-                    backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22']
+                    backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c']
                 }]
             },
             options: {
                 plugins: {
-                    legend: { position: 'bottom' },
+                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
                                 let sum = context.dataset.data.reduce((a, b) => a + b, 0);
-                                let percentage = (context.raw * 100 / sum).toFixed(1) + "%";
-                                return `${context.label}: RM${context.raw.toFixed(2)} (${percentage})`;
+                                let perc = (context.raw * 100 / sum).toFixed(1) + "%";
+                                return context.label + ": RM" + context.raw.toFixed(2) + " (" + perc + ")";
                             }
                         }
                     }
@@ -131,11 +180,14 @@
         });
     }
 
-    document.getElementById('expenseForm').addEventListener('submit', function(e) {
+    document.getElementById('trackerForm').onsubmit = (e) => {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
+        const status = document.getElementById('statusMsg');
+        
         btn.disabled = true;
-        document.getElementById('status').innerText = "Menyimpan...";
+        status.innerText = "⏳ Sedang menyimpan...";
+        status.style.color = "#f39c12";
 
         const payload = {
             tarikh: document.getElementById('tarikh').value,
@@ -146,14 +198,21 @@
 
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
         .then(res => res.text())
-        .then(text => {
-            document.getElementById('status').innerHTML = "✅ Berjaya!";
-            document.getElementById('expenseForm').reset();
+        .then(res => {
+            status.innerText = "✅ Berjaya Disimpan!";
+            status.style.color = "#27ae60";
+            document.getElementById('trackerForm').reset();
             document.getElementById('tarikh').valueAsDate = new Date();
             btn.disabled = false;
-            loadInitialData(); // Segarkan data
+            muatDataAwal(); // Refresh data
+            setTimeout(() => { status.innerText = ""; }, 3000);
+        })
+        .catch(err => {
+            status.innerText = "❌ Ralat Simpan!";
+            status.style.color = "#e74c3c";
+            btn.disabled = false;
         });
-    });
+    };
 </script>
 </body>
 </html>
