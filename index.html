@@ -8,37 +8,33 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
         .home-btn { text-decoration: none; background: white; color: #333; padding: 10px 25px; border-radius: 50px; font-weight: 600; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid #ddd; }
         .container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; box-sizing: border-box; }
-        h2 { text-align: center; margin-bottom: 25px; color: #1a1a1a; }
+        h2 { text-align: center; margin-bottom: 25px; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; color: #4b4b4b; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
         input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; background: #f9f9f9; }
         optgroup { font-style: normal; font-weight: bold; }
         button { width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         button:hover { background: #219150; }
-        #status { margin-top: 15px; text-align: center; font-size: 14px; min-height: 20px; }
-        .success { color: #27ae60; }
-        .error { color: #e74c3c; }
+        #status { margin-top: 15px; text-align: center; font-size: 14px; }
     </style>
 </head>
 <body>
-
     <a href="https://luqmanzainudin84.github.io/LUQMAN/" class="home-btn">🏠 HOME</a>
-
     <div class="container">
-        <h2>💰 Perbelanjaan</h2>
+        <h2>💰 Tracker Kewangan</h2>
         <form id="expenseForm">
             <div class="form-group">
-                <label>📅 Tarikh Transaksi</label>
+                <label>📅 Tarikh</label>
                 <input type="date" id="tarikh" required>
             </div>
             <div class="form-group">
-                <label>📝 Nama Barang / Perkara</label>
-                <input type="text" id="perkara" placeholder="Contoh: Makan Tengahari" required>
+                <label>📝 Perkara</label>
+                <input type="text" id="perkara" placeholder="Contoh: Beli Barang Dapur" required>
             </div>
             <div class="form-group">
                 <label>📂 Kategori</label>
                 <select id="kategori" required>
-                    <option value="">Sedang memuatkan...</option>
+                    <option value="">Memuatkan senarai...</option>
                 </select>
             </div>
             <div class="form-group">
@@ -51,21 +47,14 @@
     </div>
 
 <script>
-    // PASTI KAN URL INI ADALAH URL DARI "NEW DEPLOYMENT"
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxm1rCjS13jIfH6pj5Mznv5a1HWIZb32J6FZNm0tD7LNXvr_ZqtygqHqxiAltq12JiV7g/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4lQMjSAwfhdGP7GTxrROLsv-PpnCbsILj_NnJCqVOY4bJBODtxa2VAQcgblKKi3vAqA/exec";
 
     window.onload = function() {
         document.getElementById('tarikh').valueAsDate = new Date();
-        
         fetch(SCRIPT_URL)
             .then(res => res.json())
             .then(data => {
                 const select = document.getElementById('kategori');
-                if (data.error) {
-                    select.innerHTML = '<option value="">Ralat: ' + data.error + '</option>';
-                    return;
-                }
-                
                 select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
                 let currentGroup = "";
                 let groupElement = null;
@@ -74,33 +63,25 @@
                     if (item.kumpulan !== currentGroup) {
                         groupElement = document.createElement('optgroup');
                         groupElement.label = "--- " + item.kumpulan.toUpperCase() + " ---";
-                        // Warna Hijau untuk Income, Merah untuk Expense
                         groupElement.style.color = (item.jenis === "Income") ? "#27ae60" : "#e74c3c";
                         select.appendChild(groupElement);
                         currentGroup = item.kumpulan;
                     }
-                    
                     let opt = document.createElement('option');
                     opt.value = item.kategori;
-                    opt.innerHTML = "&nbsp;&nbsp;&nbsp;&raquo; " + item.kategori; // Indentasi
-                    opt.style.color = "#333"; // Nama kategori tetap hitam
+                    opt.innerHTML = "&nbsp;&nbsp;&nbsp;&raquo; " + item.kategori;
+                    opt.style.color = "#333";
                     groupElement.appendChild(opt);
                 });
-            })
-            .catch(err => {
-                document.getElementById('status').innerHTML = "<span class='error'>Gagal memuatkan kategori. Sila semak Deployment URL.</span>";
-            });
+            }).catch(err => { document.getElementById('status').innerHTML = "Gagal memuatkan kategori."; });
     };
 
     document.getElementById('expenseForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
-        const status = document.getElementById('status');
-        
         btn.disabled = true;
-        status.innerHTML = "Menyimpan...";
-        status.className = "";
-
+        document.getElementById('status').innerHTML = "Menyimpan...";
+        
         const payload = {
             tarikh: document.getElementById('tarikh').value,
             perkara: document.getElementById('perkara').value,
@@ -110,15 +91,14 @@
 
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
         .then(res => res.text())
-        .then(res => {
-            status.innerHTML = "<span class='success'>✅ Berjaya disimpan!</span>";
+        .then(() => {
+            document.getElementById('status').innerHTML = "<span style='color:green'>✅ Berjaya Disimpan!</span>";
             document.getElementById('expenseForm').reset();
             document.getElementById('tarikh').valueAsDate = new Date();
             btn.disabled = false;
-        })
-        .catch(err => {
-            status.innerHTML = "<span class='error'>❌ Ralat Simpan. Cuba lagi.</span>";
-            btn.disabled = false;
+        }).catch(() => { 
+            document.getElementById('status').innerHTML = "<span style='color:red'>❌ Ralat! Cuba Lagi.</span>";
+            btn.disabled = false; 
         });
     });
 </script>
