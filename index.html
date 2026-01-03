@@ -3,36 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracker Kewangan Pro</title>
+    <title>Tracker Kewangan Pro - Full Version</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --primary: #2ecc71; --secondary: #3498db; --bg: #f8f9fa; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 450px; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 500px; }
         .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; }
         h2, h3 { color: #2c3e50; text-align: center; margin-top: 0; }
         
-        input, select, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid #dfe6e9; font-size: 16px; box-sizing: border-box; }
-        input:focus, select:focus { border-color: var(--secondary); outline: none; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); }
+        input, select, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid #dfe6e9; font-size: 16px; box-sizing: border-box; display: block; }
         
+        /* Baiki Warna Dropdown */
+        select { background-color: white !important; color: #2c3e50 !important; appearance: auto; }
+        optgroup { font-weight: bold; color: #2980b9; background: #f9f9f9; }
+        option { color: #2c3e50 !important; padding: 10px; }
+
         button { background: var(--primary); color: white; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; }
         button:hover { background: #27ae60; transform: translateY(-2px); }
-        button:disabled { background: #bdc3c7; cursor: not-allowed; }
 
-        /* Style Kategori */
-        optgroup { font-weight: bold; color: #7f8c8d; background: #f1f2f6; }
-        option { color: #2c3e50; background: white; }
+        .filter-section { display: flex; gap: 10px; align-items: center; margin-bottom: 15px; }
+        .filter-section select { margin: 0; flex: 1; }
 
         .chart-box { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; }
         
-        .log-section { width: 100%; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; font-size: 14px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; font-size: 14px; }
         th { background: #ecf0f1; padding: 12px; text-align: left; color: #7f8c8d; }
         td { padding: 12px; border-bottom: 1px solid #f1f2f6; }
         .amt-pos { color: #27ae60; font-weight: bold; }
         .amt-neg { color: #e74c3c; font-weight: bold; }
         
-        #loading { text-align: center; color: var(--secondary); font-weight: bold; display: none; }
+        #loading { text-align: center; color: var(--secondary); font-weight: bold; display: none; padding: 10px; }
+        .summary-text { text-align: center; font-weight: bold; margin-bottom: 10px; color: #34495e; }
     </style>
 </head>
 <body>
@@ -40,25 +42,43 @@
 <div class="container">
     <div class="card">
         <h2>💰 My Tracker</h2>
-        <div id="loading">Sila tunggu...</div>
+        <div id="loading">Memuatkan data...</div>
         <form id="expForm">
             <input type="date" id="tgl" required>
-            <input type="text" id="item" placeholder="Contoh: Beli Barang Dapur" required>
+            <input type="text" id="item" placeholder="Perkara (e.g. Nasi Lemak)" required>
             <select id="kat" required>
-                <option value="">-- Memuatkan Kategori --</option>
+                <option value="" style="color: #999;">-- Pilih Kategori --</option>
             </select>
-            <input type="number" step="0.01" id="amt" placeholder="RM 0.00" required>
-            <button type="submit" id="btnSubmit">SIMPAN TRANSAKSI</button>
+            <input type="number" step="0.01" id="amt" placeholder="Jumlah RM" required>
+            <button type="submit" id="btnSubmit">SIMPAN</button>
         </form>
     </div>
 
     <div class="chart-box">
-        <h3>📊 Analisis Belanja (%)</h3>
+        <h3>📊 Analisis Perbelanjaan</h3>
+        <div class="filter-section">
+            <select id="monthFilter" onchange="filterData()">
+                <option value="ALL">Semua Rekod</option>
+                <option value="01">Januari</option>
+                <option value="02">Februari</option>
+                <option value="03">Mac</option>
+                <option value="04">April</option>
+                <option value="05">Mei</option>
+                <option value="06">Jun</option>
+                <option value="07">Julai</option>
+                <option value="08">Ogos</option>
+                <option value="09">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Disember</option>
+            </select>
+        </div>
+        <div id="summary" class="summary-text"></div>
         <canvas id="myChart"></canvas>
     </div>
 
-    <div class="log-section">
-        <h3>📜 10 Rekod Terkini</h3>
+    <div class="card" style="padding: 10px;">
+        <h3>📜 Senarai Transaksi</h3>
         <table id="logTable">
             <thead>
                 <tr>
@@ -73,12 +93,14 @@
 </div>
 
 <script>
-    // MASUKKAN URL WEB APP BARU PUAN DI SINI
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxgEsty2dUK21KOUqm_fQa9U8VuCwEpd6r50i-s667vtN6ZrctpF24oSAMmAGbSXOD0EQ/exec";
+    let allLogs = [];
     let myPieChart;
 
     window.onload = () => {
         document.getElementById('tgl').valueAsDate = new Date();
+        const currentMonth = ("0" + (new Date().getMonth() + 1)).slice(-2);
+        document.getElementById('monthFilter').value = currentMonth;
         ambilData();
     };
 
@@ -87,7 +109,7 @@
         fetch(WEB_APP_URL)
             .then(res => res.json())
             .then(data => {
-                // 1. Kemaskini Dropdown Kategori
+                // Populate Dropdown Kategori
                 const select = document.getElementById('kat');
                 select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
                 
@@ -110,30 +132,46 @@
                     select.add(groupTag);
                 }
 
-                // 2. Kemaskini Log & Carta
-                kemaskiniUI(data.logs);
+                allLogs = data.logs;
+                filterData();
                 document.getElementById('loading').style.display = 'none';
             });
+    }
+
+    function filterData() {
+        const filter = document.getElementById('monthFilter').value;
+        let filtered = allLogs;
+
+        if (filter !== "ALL") {
+            filtered = allLogs.filter(log => {
+                const logMonth = log.tarikh.split('-')[1]; // Format yyyy-mm-dd
+                return logMonth === filter;
+            });
+        }
+        
+        kemaskiniUI(filtered);
     }
 
     function kemaskiniUI(logs) {
         const tbody = document.querySelector('#logTable tbody');
         tbody.innerHTML = '';
         const chartData = {};
+        let totalBelanja = 0;
 
-        logs.slice(0, 10).forEach(log => {
+        logs.forEach(log => {
             const row = tbody.insertRow();
             const dt = new Date(log.tarikh).toLocaleDateString('ms-MY', {day:'2-digit', month:'2-digit'});
             const cls = log.jumlah < 0 ? 'amt-neg' : 'amt-pos';
             
             row.innerHTML = `<td>${dt}</td><td>${log.perkara}</td><td class="${cls}">${log.jumlah.toFixed(2)}</td>`;
 
-            // Data untuk carta (hanya ambil perbelanjaan sahaja/negatif)
             if (log.jumlah < 0) {
                 chartData[log.kategori] = (chartData[log.kategori] || 0) + Math.abs(log.jumlah);
+                totalBelanja += Math.abs(log.jumlah);
             }
         });
 
+        document.getElementById('summary').innerText = `Jumlah Belanja: RM ${totalBelanja.toFixed(2)}`;
         lukisCarta(chartData);
     }
 
@@ -141,28 +179,16 @@
         const ctx = document.getElementById('myChart').getContext('2d');
         if (myPieChart) myPieChart.destroy();
 
+        if (Object.keys(data).length === 0) return;
+
         myPieChart = new Chart(ctx, {
             type: 'pie',
             data: {
                 labels: Object.keys(data),
                 datasets: [{
                     data: Object.values(data),
-                    backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22']
+                    backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c']
                 }]
-            },
-            options: {
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                let value = context.raw;
-                                let percentage = ((value / total) * 100).toFixed(1) + "%";
-                                return context.label + ": RM" + value.toFixed(2) + " (" + percentage + ")";
-                            }
-                        }
-                    }
-                }
             }
         });
     }
@@ -171,7 +197,7 @@
         e.preventDefault();
         const btn = document.getElementById('btnSubmit');
         btn.disabled = true;
-        btn.innerText = "MENYIMPAN...";
+        btn.innerText = "Simpan...";
 
         const payload = {
             tarikh: document.getElementById('tgl').value,
@@ -184,13 +210,12 @@
             method: 'POST',
             body: JSON.stringify(payload)
         })
-        .then(res => res.text())
         .then(() => {
             document.getElementById('expForm').reset();
             document.getElementById('tgl').valueAsDate = new Date();
             btn.disabled = false;
-            btn.innerText = "SIMPAN TRANSAKSI";
-            ambilData(); // Refresh data
+            btn.innerText = "SIMPAN";
+            ambilData();
         });
     };
 </script>
