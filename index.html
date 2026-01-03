@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Tracker</title>
+    <title>Tracker Kewangan</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
         .home-btn { text-decoration: none; background: white; color: #333; padding: 10px 25px; border-radius: 50px; font-weight: 600; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid #ddd; }
         .container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; box-sizing: border-box; }
-        h2 { text-align: center; margin-bottom: 25px; }
+        h2 { text-align: center; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
         input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; background: #f9f9f9; }
         optgroup { font-style: normal; font-weight: bold; }
         button { width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         button:hover { background: #219150; }
-        #status { margin-top: 15px; text-align: center; font-size: 14px; }
+        #status { margin-top: 15px; text-align: center; font-size: 14px; min-height: 20px; }
     </style>
 </head>
 <body>
@@ -47,19 +47,26 @@
     </div>
 
 <script>
+    // PENTING: Masukkan URL Web App terbaru anda di sini
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4lQMjSAwfhdGP7GTxrROLsv-PpnCbsILj_NnJCqVOY4bJBODtxa2VAQcgblKKi3vAqA/exec";
 
     window.onload = function() {
+        // Set tarikh hari ini secara automatik
         document.getElementById('tarikh').valueAsDate = new Date();
+        
+        // Ambil data kategori dari Google Sheets
         fetch(SCRIPT_URL)
             .then(res => res.json())
             .then(data => {
                 const select = document.getElementById('kategori');
+                if (data.error) throw new Error(data.error);
+                
                 select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
                 let currentGroup = "";
                 let groupElement = null;
 
                 data.forEach(item => {
+                    // Kelompokkan mengikut Kumpulan dengan Warna mengikut Jenis
                     if (item.kumpulan !== currentGroup) {
                         groupElement = document.createElement('optgroup');
                         groupElement.label = "--- " + item.kumpulan.toUpperCase() + " ---";
@@ -67,13 +74,17 @@
                         select.appendChild(groupElement);
                         currentGroup = item.kumpulan;
                     }
+                    // Tambah sub-kategori dengan Indentasi
                     let opt = document.createElement('option');
                     opt.value = item.kategori;
                     opt.innerHTML = "&nbsp;&nbsp;&nbsp;&raquo; " + item.kategori;
                     opt.style.color = "#333";
                     groupElement.appendChild(opt);
                 });
-            }).catch(err => { document.getElementById('status').innerHTML = "Gagal memuatkan kategori."; });
+            }).catch(err => { 
+                document.getElementById('status').innerHTML = "<span style='color:red'>Gagal memuatkan kategori. Sila periksa URL Deployment.</span>";
+                console.error(err);
+            });
     };
 
     document.getElementById('expenseForm').addEventListener('submit', function(e) {
@@ -97,7 +108,7 @@
             document.getElementById('tarikh').valueAsDate = new Date();
             btn.disabled = false;
         }).catch(() => { 
-            document.getElementById('status').innerHTML = "<span style='color:red'>❌ Ralat! Cuba Lagi.</span>";
+            document.getElementById('status').innerHTML = "<span style='color:red'>❌ Ralat! Sila cuba lagi.</span>";
             btn.disabled = false; 
         });
     });
