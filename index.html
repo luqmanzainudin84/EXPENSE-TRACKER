@@ -6,40 +6,26 @@
     <title>Tracker Kewangan Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --primary: #27ae60;
-            --bg: #f4f7f6;
-        }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        :root { --primary: #27ae60; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 420px; margin-bottom: 20px; border-top: 5px solid var(--primary); }
-        h2, h3 { color: #2c3e50; margin-bottom: 20px; }
+        input, select, button { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1.5px solid #eee; font-size: 15px; box-sizing: border-box; }
+        optgroup { font-weight: bold; text-transform: uppercase; }
+        /* Warna Dropdown */
+        optgroup[label*="GAJI"] { color: #27ae60; }
+        optgroup[label*="OTHER"] { color: #2980b9; }
+        optgroup[label*="KEPERLUAN"] { color: #e67e22; }
+        optgroup[label*="GAYA HIDUP"] { color: #9b59b6; }
+        optgroup[label*="KEWANGAN"] { color: #e74c3c; }
         
-        /* Dropdown Styling */
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px; color: #7f8c8d; }
-        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1.5px solid #eee; font-size: 15px; transition: 0.3s; }
-        input:focus, select:focus { border-color: var(--primary); outline: none; background: #fff; }
-        
-        /* Warna untuk Optgroup */
-        optgroup[label="GAJI"] { color: #27ae60; }
-        optgroup[label="OTHER"] { color: #2980b9; }
-        optgroup[label="KEPERLUAN ASAS"] { color: #e67e22; }
-        optgroup[label="GAYA HIDUP & KEINGINAN"] { color: #9b59b6; }
-        optgroup[label="KEWANGAN & LAIN-LAIN"] { color: #e74c3c; }
-        option { color: #2c3e50; font-weight: normal; }
-
-        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3); }
-        button:hover { background: #219150; transform: translateY(-2px); }
-        button:disabled { background: #bdc3c7; box-shadow: none; cursor: not-allowed; }
-
-        .chart-box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 420px; margin-bottom: 20px; text-align: center; }
-        
-        .log-box { width: 100%; max-width: 500px; background: white; border-radius: 15px; padding: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        button { background: var(--primary); color: white; font-weight: bold; cursor: pointer; border: none; }
+        .chart-box { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 420px; margin-bottom: 20px; text-align: center; }
+        .log-box { width: 100%; max-width: 420px; background: white; border-radius: 15px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th { text-align: left; padding: 12px; border-bottom: 2px solid #eee; color: #95a5a6; text-transform: uppercase; font-size: 11px; }
-        td { padding: 12px; border-bottom: 1px solid #f9f9f9; color: #2c3e50; }
-        .amt-neg { color: #e74c3c; font-weight: bold; }
-        .amt-pos { color: #27ae60; font-weight: bold; }
-        #statusMsg { font-size: 12px; margin-top: 10px; transition: 0.5s; }
+        th { text-align: left; padding: 10px; border-bottom: 2px solid #eee; color: #95a5a6; }
+        td { padding: 10px; border-bottom: 1px solid #f9f9f9; }
+        .neg { color: #e74c3c; font-weight: bold; }
+        .pos { color: #27ae60; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -47,23 +33,13 @@
     <div class="card">
         <h2 style="text-align:center">💰 Tracker Kewangan</h2>
         <form id="trackerForm">
-            <label>TARIKH</label>
             <input type="date" id="tarikh" required>
-            
-            <label>PERKARA</label>
-            <input type="text" id="perkara" placeholder="Contoh: Beli Barang Dapur" required>
-            
-            <label>KATEGORI</label>
-            <select id="kategori" required>
-                <option value="">Memuatkan kategori...</option>
-            </select>
-            
-            <label>JUMLAH (RM)</label>
-            <input type="number" step="0.01" id="jumlah" placeholder="0.00" required>
-            
+            <input type="text" id="perkara" placeholder="Contoh: Makan Tengahari" required>
+            <select id="kategori" required><option value="">Memuatkan...</option></select>
+            <input type="number" step="0.01" id="jumlah" placeholder="Jumlah RM" required>
             <button type="submit" id="submitBtn">SIMPAN REKOD</button>
         </form>
-        <div id="statusMsg" style="text-align:center"></div>
+        <div id="statusMsg" style="text-align:center; font-size: 13px;"></div>
     </div>
 
     <div class="chart-box">
@@ -72,109 +48,65 @@
     </div>
 
     <div class="log-box">
-        <h3 style="text-align:center; margin-top:10px;">📜 Log Transaksi</h3>
+        <h3 style="text-align:center">📜 Log Transaksi</h3>
         <table id="logTable">
-            <thead>
-                <tr>
-                    <th>Tarikh</th>
-                    <th>Perkara</th>
-                    <th>RM</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
+            <thead><tr><th>Tarikh</th><th>Perkara</th><th>RM</th></tr></thead>
+            <tbody></tbody>
         </table>
     </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztGn8HAzHYmUNTVrNIMY9TNK4pQ2XUBjYedisZyTOxTMWp7UwqqMUqecnDxiYIPH1l/exec";
-    let chartInstance;
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyaBXLbZhzQXAjaWgKmE7WsVXE867PZ1A9l84sV9Dba2ACsnApJQW7cofKDqTlG3Lu9/exec";
+    let chart;
 
     window.onload = () => {
         document.getElementById('tarikh').valueAsDate = new Date();
-        muatDataAwal();
+        fetchData();
     };
 
-    function muatDataAwal() {
-        fetch(SCRIPT_URL).then(res => res.json()).then(data => {
-            // Setup Dropdown dengan Warna
-            const select = document.getElementById('kategori');
-            select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
-            
-            const grouped = data.categories.reduce((acc, obj) => {
-                const key = obj.kumpulan;
-                if (!acc[key]) acc[key] = [];
-                acc[key].push(obj.kategori);
-                return acc;
-            }, {});
-
-            for (let group in grouped) {
-                const optgroup = document.createElement('optgroup');
-                optgroup.label = group.toUpperCase();
-                grouped[group].forEach(cat => {
-                    const opt = document.createElement('option');
-                    opt.value = cat;
-                    opt.text = "» " + cat;
-                    optgroup.appendChild(opt);
-                });
-                select.add(optgroup);
+    function fetchData() {
+        fetch(SCRIPT_URL).then(r => r.json()).then(res => {
+            // Populate Categories
+            const sel = document.getElementById('kategori');
+            sel.innerHTML = '<option value="">-- Pilih Kategori --</option>';
+            const gps = res.categories.reduce((a, b) => { (a[b.kumpulan] = a[b.kumpulan] || []).push(b.kategori); return a; }, {});
+            for (let g in gps) {
+                let grp = document.createElement('optgroup'); grp.label = g;
+                gps[g].forEach(c => { let o = document.createElement('option'); o.value = o.text = c; grp.appendChild(o); });
+                sel.add(grp);
             }
-
-            // Update Log & Carta
-            updateUI(data.logs);
+            // Update UI
+            updateUI(res.logs);
         });
     }
 
     function updateUI(logs) {
         const tbody = document.querySelector('#logTable tbody');
         tbody.innerHTML = '';
-        const dataCarta = {};
+        const chartData = {};
 
-        logs.forEach(log => {
-            // Table
-            const dateObj = new Date(log.tarikh);
-            const formattedDate = dateObj.toLocaleDateString('ms-MY', {day:'2-digit', month:'2-digit'});
-            const row = `<tr>
-                <td>${formattedDate}</td>
-                <td>${log.perkara}<br><small style="color:#bdc3c7">${log.kategori}</small></td>
-                <td class="${log.jumlah < 0 ? 'amt-neg' : 'amt-pos'}">${log.jumlah.toFixed(2)}</td>
-            </tr>`;
-            tbody.innerHTML += row;
-
-            // Chart Data (Hanya ambil perbelanjaan sahaja untuk Pie Chart)
-            if (log.jumlah < 0) {
-                dataCarta[log.kategori] = (dataCarta[log.kategori] || 0) + Math.abs(log.jumlah);
-            }
+        logs.forEach(l => {
+            let d = new Date(l.tarikh).toLocaleDateString('ms-MY', {day:'2-digit', month:'2-digit'});
+            tbody.innerHTML += `<tr><td>${d}</td><td>${l.perkara}<br><small style="color:#bdc3c7">${l.kategori}</small></td><td class="${l.jumlah < 0 ? 'neg' : 'pos'}">${l.jumlah.toFixed(2)}</td></tr>`;
+            if (l.jumlah < 0) chartData[l.kategori] = (chartData[l.kategori] || 0) + Math.abs(l.jumlah);
         });
 
-        renderChart(dataCarta);
-    }
-
-    function renderChart(data) {
         const ctx = document.getElementById('pieChart').getContext('2d');
-        if (chartInstance) chartInstance.destroy();
-        
-        chartInstance = new Chart(ctx, {
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: Object.keys(data),
-                datasets: [{
-                    data: Object.values(data),
-                    backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c']
-                }]
+                labels: Object.keys(chartData),
+                datasets: [{ data: Object.values(chartData), backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22'] }]
             },
-            options: {
-                plugins: {
-                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let sum = context.dataset.data.reduce((a, b) => a + b, 0);
-                                let perc = (context.raw * 100 / sum).toFixed(1) + "%";
-                                return context.label + ": RM" + context.raw.toFixed(2) + " (" + perc + ")";
-                            }
-                        }
-                    }
+            options: { 
+                plugins: { 
+                    legend: { position: 'bottom' },
+                    tooltip: { callbacks: { label: (c) => {
+                        let sum = c.dataset.data.reduce((a, b) => a + b, 0);
+                        let p = (c.raw * 100 / sum).toFixed(1) + "%";
+                        return `${c.label}: RM${c.raw.toFixed(2)} (${p})`;
+                    }}}
                 }
             }
         });
@@ -182,35 +114,20 @@
 
     document.getElementById('trackerForm').onsubmit = (e) => {
         e.preventDefault();
-        const btn = document.getElementById('submitBtn');
-        const status = document.getElementById('statusMsg');
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('statusMsg').innerText = "⏳ Menyimpan...";
         
-        btn.disabled = true;
-        status.innerText = "⏳ Sedang menyimpan...";
-        status.style.color = "#f39c12";
-
-        const payload = {
+        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({
             tarikh: document.getElementById('tarikh').value,
             perkara: document.getElementById('perkara').value,
             kategori: document.getElementById('kategori').value,
             jumlah: document.getElementById('jumlah').value
-        };
-
-        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-        .then(res => res.text())
-        .then(res => {
-            status.innerText = "✅ Berjaya Disimpan!";
-            status.style.color = "#27ae60";
+        })}).then(() => {
+            document.getElementById('statusMsg').innerText = "✅ Berjaya!";
             document.getElementById('trackerForm').reset();
             document.getElementById('tarikh').valueAsDate = new Date();
-            btn.disabled = false;
-            muatDataAwal(); // Refresh data
-            setTimeout(() => { status.innerText = ""; }, 3000);
-        })
-        .catch(err => {
-            status.innerText = "❌ Ralat Simpan!";
-            status.style.color = "#e74c3c";
-            btn.disabled = false;
+            document.getElementById('submitBtn').disabled = false;
+            fetchData();
         });
     };
 </script>
