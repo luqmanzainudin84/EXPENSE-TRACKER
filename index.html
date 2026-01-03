@@ -3,97 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracker Kewangan</title>
+    <title>Tracker Kewangan & Analisis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .home-btn { text-decoration: none; background: white; color: #333; padding: 10px 25px; border-radius: 50px; font-weight: 600; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid #ddd; }
-        .container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; box-sizing: border-box; }
-        h2 { text-align: center; margin-bottom: 25px; color: #2c3e50; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; color: #555; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; background: #fafafa; }
-        optgroup { font-style: normal; font-weight: bold; }
-        button { width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
-        button:hover { background: #219150; }
-        #status { margin-top: 15px; text-align: center; font-size: 14px; min-height: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .chart-container { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; margin-bottom: 20px; }
+        .log-container { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { border-bottom: 1px solid #eee; padding: 10px; text-align: left; }
+        th { background: #f8f9fa; }
+        .status-msg { text-align: center; font-size: 13px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <a href="https://luqmanzainudin84.github.io/LUQMAN/" class="home-btn">🏠 HOME</a>
-
     <div class="container">
-        <h2>💰 Tracker Kewangan</h2>
+        <h2 style="text-align:center">💰 Tracker Kewangan</h2>
         <form id="expenseForm">
-            <div class="form-group">
-                <label>📅 Tarikh Transaksi</label>
-                <input type="date" id="tarikh" required>
-            </div>
-            <div class="form-group">
-                <label>📝 Nama Barang / Perkara</label>
-                <input type="text" id="perkara" placeholder="Contoh: Nasi Lemak" required>
-            </div>
-            <div class="form-group">
-                <label>📂 Kategori</label>
-                <select id="kategori" required>
-                    <option value="">Memuatkan senarai...</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>💵 Jumlah (RM)</label>
-                <input type="number" step="0.01" id="jumlah" placeholder="0.00" required>
-            </div>
+            <div class="form-group"><label>📅 Tarikh</label><input type="date" id="tarikh" required></div>
+            <div class="form-group"><label>📝 Perkara</label><input type="text" id="perkara" placeholder="Contoh: Nasi Lemak" required></div>
+            <div class="form-group"><label>📂 Kategori</label><select id="kategori" required><option value="">Memuatkan...</option></select></div>
+            <div class="form-group"><label>💵 Jumlah (RM)</label><input type="number" step="0.01" id="jumlah" placeholder="0.00" required></div>
             <button type="submit" id="submitBtn">Simpan Rekod</button>
         </form>
-        <div id="status"></div>
+        <div id="status" class="status-msg"></div>
+    </div>
+
+    <div class="chart-container">
+        <h3 style="text-align:center">📊 Analisis Perbelanjaan (%)</h3>
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <div class="log-container">
+        <h3 style="text-align:center">📜 Log Transaksi Terkini</h3>
+        <table id="logTable">
+            <thead><tr><th>Tarikh</th><th>Perkara</th><th>Kategori</th><th>Jumlah</th></tr></thead>
+            <tbody><tr><td colspan="4" style="text-align:center">Memuatkan data...</td></tr></tbody>
+        </table>
     </div>
 
 <script>
-    // Pautan Web App aktif anda
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztGn8HAzHYmUNTVrNIMY9TNK4pQ2XUBjYedisZyTOxTMWp7UwqqMUqecnDxiYIPH1l/exec";
+    let myPieChart;
 
     window.onload = function() {
-        // Set tarikh automatik hari ini
         document.getElementById('tarikh').valueAsDate = new Date();
-        
-        // Memuatkan kategori dari tab ExpenseTracker01
-        fetch(SCRIPT_URL)
+        loadInitialData();
+    };
+
+    function loadInitialData() {
+        fetch(SCRIPT_URL + "?action=getInitialData")
             .then(res => res.json())
-            .then(data => {
+            .then(res => {
+                // 1. Muat Kategori
                 const select = document.getElementById('kategori');
                 select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
-                let currentGroup = "";
-                let groupElement = null;
-
-                data.forEach(item => {
-                    // Kelompokkan mengikut Kumpulan dengan warna mengikut Jenis
-                    if (item.kumpulan !== currentGroup) {
-                        groupElement = document.createElement('optgroup');
-                        groupElement.label = "--- " + item.kumpulan.toUpperCase() + " ---";
-                        groupElement.style.color = (item.jenis === "Income") ? "#27ae60" : "#e74c3c";
-                        select.appendChild(groupElement);
-                        currentGroup = item.kumpulan;
-                    }
-                    // Tambah sub-kategori dengan indentasi
-                    let opt = document.createElement('option');
-                    opt.value = item.kategori;
-                    opt.innerHTML = "&nbsp;&nbsp;&nbsp;&raquo; " + item.kategori;
-                    opt.style.color = "#333";
-                    groupElement.appendChild(opt);
+                const groups = {};
+                res.categories.forEach(item => {
+                    if (!groups[item.kumpulan]) groups[item.kumpulan] = [];
+                    groups[item.kumpulan].push(item.kategori);
                 });
-            })
-            .catch(err => {
-                document.getElementById('status').innerHTML = "<span style='color:red'>Gagal memuatkan kategori.</span>";
+                for (let group in groups) {
+                    let optGroup = document.createElement('optgroup');
+                    optGroup.label = `--- ${group.toUpperCase()} ---`;
+                    groups[group].forEach(cat => {
+                        let opt = document.createElement('option');
+                        opt.value = cat; opt.text = `» ${cat}`;
+                        optGroup.appendChild(opt);
+                    });
+                    select.add(optGroup);
+                }
+
+                // 2. Muat Log & Chart
+                updateUI(res.logs);
             });
-    };
+    }
+
+    function updateUI(logs) {
+        const tbody = document.querySelector('#logTable tbody');
+        tbody.innerHTML = '';
+        const chartData = {};
+
+        logs.slice(0, 10).forEach(log => {
+            let row = `<tr><td>${new Date(log.tarikh).toLocaleDateString()}</td><td>${log.perkara}</td><td>${log.kategori}</td><td style="color:${log.jumlah < 0 ? 'red' : 'green'}">RM${Math.abs(log.jumlah).toFixed(2)}</td></tr>`;
+            tbody.innerHTML += row;
+
+            if (log.jumlah < 0) {
+                chartData[log.kategori] = (chartData[log.kategori] || 0) + Math.abs(log.jumlah);
+            }
+        });
+
+        renderChart(chartData);
+    }
+
+    function renderChart(data) {
+        const ctx = document.getElementById('myChart').getContext('2d');
+        if (myPieChart) myPieChart.destroy();
+        
+        myPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(data),
+                datasets: [{
+                    data: Object.values(data),
+                    backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22']
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let sum = context.dataset.data.reduce((a, b) => a + b, 0);
+                                let percentage = (context.raw * 100 / sum).toFixed(1) + "%";
+                                return `${context.label}: RM${context.raw.toFixed(2)} (${percentage})`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     document.getElementById('expenseForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
-        const status = document.getElementById('status');
-        
         btn.disabled = true;
-        status.innerHTML = "Menyimpan data...";
+        document.getElementById('status').innerText = "Menyimpan...";
 
         const payload = {
             tarikh: document.getElementById('tarikh').value,
@@ -104,15 +146,12 @@
 
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
         .then(res => res.text())
-        .then(() => {
-            status.innerHTML = "<span style='color:green'>✅ Berjaya Disimpan ke Tracker02!</span>";
+        .then(text => {
+            document.getElementById('status').innerHTML = "✅ Berjaya!";
             document.getElementById('expenseForm').reset();
             document.getElementById('tarikh').valueAsDate = new Date();
             btn.disabled = false;
-        })
-        .catch(err => {
-            status.innerHTML = "<span style='color:red'>❌ Ralat Simpan.</span>";
-            btn.disabled = false;
+            loadInitialData(); // Segarkan data
         });
     });
 </script>
