@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracker Kewangan - Versi Stabil</title>
+    <title>Tracker Kewangan - RM & Peratus</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --primary: #2ecc71; --secondary: #3498db; --bg: #f4f7f6; }
@@ -19,7 +19,7 @@
         button:disabled { background: #bdc3c7; }
 
         .filter-box { background: #fff; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 2px solid var(--secondary); }
-        .summary-text { text-align: center; font-weight: bold; font-size: 20px; color: #e74c3c; margin-bottom: 15px; }
+        .summary-text { text-align: center; font-weight: bold; font-size: 22px; color: #e74c3c; margin-bottom: 15px; }
 
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; font-size: 13px; }
         th { background: #f8f9fa; padding: 12px; text-align: left; color: #7f8c8d; border-bottom: 2px solid #eee; }
@@ -35,7 +35,7 @@
 <div class="container">
     <div class="card">
         <h2>💰 My Tracker</h2>
-        <div id="loading">Memproses data...</div>
+        <div id="loading">Memuatkan data...</div>
         <form id="expForm">
             <input type="date" id="tgl" required>
             <input type="text" id="item" placeholder="Perkara" required>
@@ -62,7 +62,7 @@
                 <tr>
                     <th>Tarikh</th>
                     <th>Perkara</th>
-                    <th>RM</th>
+                    <th>Jumlah</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -83,7 +83,6 @@
     function ambilData() {
         document.getElementById('loading').style.display = 'block';
         fetch(WEB_APP_URL).then(res => res.json()).then(data => {
-            // Dropdown Kategori
             const select = document.getElementById('kat');
             select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
             const gps = data.categories.reduce((acc, obj) => {
@@ -109,7 +108,6 @@
         });
     }
 
-    // MEMBINA DROPDOWN BULAN & TAHUN
     function binaFilterPeriod(logs) {
         const filter = document.getElementById('periodFilter');
         const periods = new Set();
@@ -133,7 +131,6 @@
         filterByPeriod(); 
     }
 
-    // FUNGSI UTAMA: FILTER JADUAL & CARTA
     function filterByPeriod() {
         const selected = document.getElementById('periodFilter').value;
         const filtered = allLogs.filter(log => {
@@ -141,14 +138,12 @@
             const logVal = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2);
             return logVal === selected;
         });
-
         kemaskiniUI(filtered);
     }
 
-    // FUNGSI UNTUK TAMPILKAN DATA DALAM JADUAL
     function kemaskiniUI(logs) {
         const tbody = document.querySelector('#logTable tbody');
-        tbody.innerHTML = ''; // PADAM SEMUA DATA LAMA
+        tbody.innerHTML = '';
         const chartData = {};
         let totalBelanja = 0;
 
@@ -158,7 +153,8 @@
             const dtStr = d.toLocaleDateString('ms-MY', {day:'2-digit', month:'2-digit'});
             const cls = log.jumlah < 0 ? 'amt-neg' : 'amt-pos';
             
-            row.innerHTML = `<td>${dtStr}</td><td>${log.perkara}</td><td class="${cls}">${log.jumlah.toFixed(2)}</td>`;
+            // Simbol RM pada jadual
+            row.innerHTML = `<td>${dtStr}</td><td>${log.perkara}</td><td class="${cls}">RM ${Math.abs(log.jumlah).toFixed(2)}</td>`;
 
             if (log.jumlah < 0) {
                 chartData[log.kategori] = (chartData[log.kategori] || 0) + Math.abs(log.jumlah);
@@ -166,16 +162,16 @@
             }
         });
 
-        document.getElementById('summary').innerText = `Total Belanja: RM ${totalBelanja.toFixed(2)}`;
+        // Simbol RM pada ringkasan
+        document.getElementById('summary').innerText = `Jumlah Belanja: RM ${totalBelanja.toFixed(2)}`;
         lukisCarta(chartData);
     }
 
-    // FUNGSI BANTUAN UNTUK BACA TARIKH
     function parseDate(dateStr) {
         let d = new Date(dateStr);
         if (isNaN(d.getTime()) && dateStr.toString().includes('/')) {
             let p = dateStr.split('/');
-            d = new Date(p[2], p[0]-1, p[1]);
+            d = new Date(p[2], p[1]-1, p[0]);
         }
         return d;
     }
@@ -193,6 +189,21 @@
                     data: Object.values(data),
                     backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c']
                 }]
+            },
+            options: {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                let value = context.raw || 0;
+                                let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                let percentage = ((value / total) * 100).toFixed(1) + "%";
+                                return `${label}: RM ${value.toFixed(2)} (${percentage})`;
+                            }
+                        }
+                    }
+                }
             }
         });
     }
