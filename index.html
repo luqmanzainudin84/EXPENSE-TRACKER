@@ -3,34 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracker Kewangan Pro - Versi Tahun</title>
+    <title>Tracker Kewangan - Versi Stabil</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --primary: #2ecc71; --secondary: #3498db; --bg: #f4f7f6; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 500px; }
         .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        h2, h3 { color: #2c3e50; text-align: center; margin-top: 0; }
+        h2, h3 { color: #2c3e50; text-align: center; margin: 0 0 15px 0; }
         
         input, select, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid #dfe6e9; font-size: 16px; box-sizing: border-box; }
-        
-        /* Dropdown Warna */
         select { background-color: white !important; color: #2c3e50 !important; appearance: auto; }
-        optgroup { font-weight: bold; color: #2980b9; }
 
         button { background: var(--primary); color: white; border: none; font-weight: 700; cursor: pointer; }
         button:disabled { background: #bdc3c7; }
 
         .filter-box { background: #fff; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 2px solid var(--secondary); }
-        .summary-text { text-align: center; font-weight: bold; font-size: 18px; color: #e74c3c; margin-bottom: 10px; }
+        .summary-text { text-align: center; font-weight: bold; font-size: 20px; color: #e74c3c; margin-bottom: 15px; }
 
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; font-size: 13px; }
-        th { background: #f8f9fa; padding: 12px; text-align: left; color: #7f8c8d; }
-        td { padding: 12px; border-bottom: 1px solid #f1f2f6; }
+        th { background: #f8f9fa; padding: 12px; text-align: left; color: #7f8c8d; border-bottom: 2px solid #eee; }
+        td { padding: 12px; border-bottom: 1px solid #f1f2f6; color: #2c3e50; }
         .amt-pos { color: #27ae60; font-weight: bold; }
         .amt-neg { color: #e74c3c; font-weight: bold; }
         
-        #loading { text-align: center; color: var(--secondary); font-weight: bold; display: none; }
+        #loading { text-align: center; color: var(--secondary); font-weight: bold; display: none; margin: 10px; }
     </style>
 </head>
 <body>
@@ -49,9 +46,8 @@
     </div>
 
     <div class="filter-box">
-        <label style="font-weight:bold; color:var(--secondary)">Pilih Bulan & Tahun:</label>
-        <select id="periodFilter" onchange="filterByPeriod()">
-            </select>
+        <label style="font-weight:bold; color:var(--secondary); display:block; margin-bottom:5px;">Pilih Bulan & Tahun:</label>
+        <select id="periodFilter" onchange="filterByPeriod()"></select>
     </div>
 
     <div class="card">
@@ -62,7 +58,13 @@
     <div class="card" style="padding: 10px;">
         <h3>📜 Rekod Transaksi</h3>
         <table id="logTable">
-            <thead><tr><th>Tarikh</th><th>Perkara</th><th>RM</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Tarikh</th>
+                    <th>Perkara</th>
+                    <th>RM</th>
+                </tr>
+            </thead>
             <tbody></tbody>
         </table>
     </div>
@@ -81,7 +83,7 @@
     function ambilData() {
         document.getElementById('loading').style.display = 'block';
         fetch(WEB_APP_URL).then(res => res.json()).then(data => {
-            // 1. Dropdown Kategori
+            // Dropdown Kategori
             const select = document.getElementById('kat');
             select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
             const gps = data.categories.reduce((acc, obj) => {
@@ -101,23 +103,24 @@
                 select.add(groupTag);
             }
 
-            // 2. Simpan Logs & Bina Filter Tahun-Bulan
             allLogs = data.logs;
             binaFilterPeriod(allLogs);
             document.getElementById('loading').style.display = 'none';
         });
     }
 
+    // MEMBINA DROPDOWN BULAN & TAHUN
     function binaFilterPeriod(logs) {
         const filter = document.getElementById('periodFilter');
         const periods = new Set();
         
-        // Ambil setiap Bulan-Tahun yang unik dari data
         logs.forEach(log => {
-            const d = new Date(log.tarikh);
-            const label = d.toLocaleDateString('ms-MY', { month: 'long', year: 'numeric' });
-            const val = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2);
-            periods.add(JSON.stringify({val, label}));
+            let d = parseDate(log.tarikh);
+            if (!isNaN(d.getTime())) {
+                const label = d.toLocaleDateString('ms-MY', { month: 'long', year: 'numeric' });
+                const val = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2);
+                periods.add(JSON.stringify({val, label}));
+            }
         });
 
         const sortedPeriods = Array.from(periods).map(p => JSON.parse(p)).sort((a,b) => b.val.localeCompare(a.val));
@@ -127,28 +130,35 @@
             filter.innerHTML += `<option value="${p.val}">${p.label}</option>`;
         });
 
-        filterByPeriod();
+        filterByPeriod(); 
     }
 
+    // FUNGSI UTAMA: FILTER JADUAL & CARTA
     function filterByPeriod() {
         const selected = document.getElementById('periodFilter').value;
         const filtered = allLogs.filter(log => {
-            return log.tarikh.startsWith(selected);
+            let d = parseDate(log.tarikh);
+            const logVal = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2);
+            return logVal === selected;
         });
+
         kemaskiniUI(filtered);
     }
 
+    // FUNGSI UNTUK TAMPILKAN DATA DALAM JADUAL
     function kemaskiniUI(logs) {
         const tbody = document.querySelector('#logTable tbody');
-        tbody.innerHTML = '';
+        tbody.innerHTML = ''; // PADAM SEMUA DATA LAMA
         const chartData = {};
         let totalBelanja = 0;
 
         logs.forEach(log => {
             const row = tbody.insertRow();
-            const dt = new Date(log.tarikh).toLocaleDateString('ms-MY', {day:'2-digit', month:'2-digit'});
+            let d = parseDate(log.tarikh);
+            const dtStr = d.toLocaleDateString('ms-MY', {day:'2-digit', month:'2-digit'});
             const cls = log.jumlah < 0 ? 'amt-neg' : 'amt-pos';
-            row.innerHTML = `<td>${dt}</td><td>${log.perkara}</td><td class="${cls}">${log.jumlah.toFixed(2)}</td>`;
+            
+            row.innerHTML = `<td>${dtStr}</td><td>${log.perkara}</td><td class="${cls}">${log.jumlah.toFixed(2)}</td>`;
 
             if (log.jumlah < 0) {
                 chartData[log.kategori] = (chartData[log.kategori] || 0) + Math.abs(log.jumlah);
@@ -158,6 +168,16 @@
 
         document.getElementById('summary').innerText = `Total Belanja: RM ${totalBelanja.toFixed(2)}`;
         lukisCarta(chartData);
+    }
+
+    // FUNGSI BANTUAN UNTUK BACA TARIKH
+    function parseDate(dateStr) {
+        let d = new Date(dateStr);
+        if (isNaN(d.getTime()) && dateStr.toString().includes('/')) {
+            let p = dateStr.split('/');
+            d = new Date(p[2], p[0]-1, p[1]);
+        }
+        return d;
     }
 
     function lukisCarta(data) {
